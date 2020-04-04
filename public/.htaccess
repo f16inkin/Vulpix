@@ -1,0 +1,8 @@
+AddDefaultCharset utf-8
+RewriteEngine on
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "PUT, PATCH, DELETE"
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !favicon.ico
+RewriteRule ^(.*)$ index.php?url=$1
