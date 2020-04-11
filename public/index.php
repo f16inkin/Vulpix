@@ -2,7 +2,7 @@
 
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
-use Vulpix\Engine\Infrastructure\ApplicationFactory;
+use Vulpix\Engine\Core\Infrastructure\ApplicationFactory;
 
 #Автозагрузка
 chdir(dirname(__DIR__));

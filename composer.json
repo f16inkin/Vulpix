@@ -9,7 +9,8 @@
     "laminas/laminas-httphandlerrunner": "^1.1",
     "laminas/laminas-stratigility": "^3.2",
     "php-di/php-di": "^6.0",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-pdo": "*"
   },
   "autoload": {
       "psr-4": {
