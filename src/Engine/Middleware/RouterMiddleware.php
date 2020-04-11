@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class RouteMiddleware implements MiddlewareInterface
+class RouterMiddleware implements MiddlewareInterface
 {
     private $_aura;
 
@@ -34,7 +34,7 @@ class RouteMiddleware implements MiddlewareInterface
             foreach ($route->attributes as $key => $val) {
                 $request = $request->withAttribute($key, $val);
             }
-            return (new $route->handler)->handle($request);
+            $request = $request->withAttribute('Action', $route->handler);
         }
         return $handler->handle($request);
     }
