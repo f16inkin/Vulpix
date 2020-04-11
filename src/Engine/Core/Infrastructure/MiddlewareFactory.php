@@ -2,12 +2,12 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\Infrastructure;
+namespace Vulpix\Engine\Core\Infrastructure;
 
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
-use Vulpix\Engine\Middleware\Exceptions\UnknownMiddlewareException;
+use Vulpix\Engine\Core\Middleware\Exceptions\UnknownMiddlewareException;
 
 /**
  * Class MiddlewareFactory

@@ -2,14 +2,14 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\Infrastructure;
+namespace Vulpix\Engine\Core\Infrastructure;
 
 
 use Aura\Router\RouterContainer;
 use Laminas\Stratigility\MiddlewarePipe;
 use Psr\Container\ContainerInterface;
-use Vulpix\Application\PatientCard\Card\Actions\EmptyRouteAction;
 use Vulpix\Engine\Core\Application;
+use Vulpix\Engine\Core\EmptyRouteHandler;
 
 /**
  * Class ApplicationFactory
@@ -27,7 +27,7 @@ class ApplicationFactory
             $container->get(MiddlewareFactory::class),
             $container->get(RouterContainer::class),
             $container->get(MiddlewarePipe::class),
-            $container->get(EmptyRouteAction::class)
+            $container->get(EmptyRouteHandler::class)
         );
     }
 
@@ -40,7 +40,7 @@ class ApplicationFactory
             $container->get(MiddlewareFactory::class),
             $container->get(RouterContainer::class),
             $container->get(MiddlewarePipe::class),
-            $container->get(EmptyRouteAction::class)
+            $container->get(EmptyRouteHandler::class)
         );
     }
 

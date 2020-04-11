@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Vulpix\Engine\Middleware\Exceptions;
+namespace Vulpix\Engine\Core\Middleware\Exceptions;
 
 
 use Throwable;
