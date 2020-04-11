@@ -35,7 +35,7 @@ class MiddlewareFactory
         if ($this->_container->has($handler)){
             return $this->_container->get($handler);
         }
-        throw new UnknownMiddlewareException('Данный Middleware не зарегистрирован '.$handler);
+        throw new UnknownMiddlewareException("Данный $handler не зарегистрирован.");
     }
 
 }

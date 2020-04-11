@@ -13,6 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\Infrastructure\MiddlewareFactory;
+use Vulpix\Engine\Middleware\Exceptions\UnknownMiddlewareException;
 
 /**
  * Class Application
@@ -85,14 +86,18 @@ class Application implements RequestHandlerInterface
      *
      * @param $path
      * @param null $middleware
-     * @throws \Vulpix\Engine\Middleware\Exceptions\UnknownMiddlewareException
      */
     public function pipe($path, $middleware = null) : void {
-        if ($middleware === null){
-            $this->_pipeline->pipe($this->_factory->create($path));
-        }else{
-            $this->_pipeline->pipe(path($path, $this->_factory->create($middleware)));
+        try{
+            if ($middleware === null){
+                $this->_pipeline->pipe($this->_factory->create($path));
+            }else{
+                $this->_pipeline->pipe(path($path, $this->_factory->create($middleware)));
+            }
+        }catch (UnknownMiddlewareException $e){
+            //Здесь сделать логирование например того мидлвара который работает не верно
         }
+
     }
 
     /**
