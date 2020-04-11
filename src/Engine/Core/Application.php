@@ -12,8 +12,8 @@ use function Laminas\Stratigility\path;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\Infrastructure\MiddlewareFactory;
-use Vulpix\Engine\Middleware\Exceptions\UnknownMiddlewareException;
+use Vulpix\Engine\Core\Infrastructure\MiddlewareFactory;
+use Vulpix\Engine\Core\Middleware\Exceptions\UnknownMiddlewareException;
 
 /**
  * Class Application
