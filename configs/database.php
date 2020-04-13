@@ -1,7 +1,7 @@
 <?php
 return [
     'host' => 'localhost',
-    'dbname' => '',
+    'dbname' => 'vulpix',
     'charset' => 'utf8',
     'user' => 'root',
     'password' => '',

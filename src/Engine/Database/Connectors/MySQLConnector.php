@@ -8,8 +8,8 @@ namespace Vulpix\Engine\Database\Connectors;
 class MySQLConnector implements IConnector
 {
     private static $_PDO = null;
-    private function __construct() {}
-    private function __clone() {}
+    //private function __construct() {}
+    //private function __clone() {}
 
     /**
      * Вернет подключение к базе данных
