@@ -4,13 +4,15 @@
   },
   "require": {
     "php": ">=7.3",
+    "ext-json": "*",
+    "ext-pdo": "*",
     "aura/router": "^3.1",
+    "firebase/php-jwt": "^5.2",
     "laminas/laminas-diactoros": "^2.2",
     "laminas/laminas-httphandlerrunner": "^1.1",
     "laminas/laminas-stratigility": "^3.2",
     "php-di/php-di": "^6.0",
-    "ext-json": "*",
-    "ext-pdo": "*"
+    "ext-mbstring": "*"
   },
   "autoload": {
       "psr-4": {
