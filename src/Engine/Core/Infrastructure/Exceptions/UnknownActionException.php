@@ -1,12 +1,12 @@
 <?php
 
 
-namespace Vulpix\Engine\Core\Middleware\Exceptions;
+namespace Vulpix\Engine\Core\Infrastructure\Exceptions;
 
 
 use Throwable;
 
-class UnknownMiddlewareException extends \Exception
+class UnknownActionException extends \Exception
 {
     public function __construct($message = "", $code = 0, Throwable $previous = null)
     {
