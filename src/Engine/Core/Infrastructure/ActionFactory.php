@@ -31,7 +31,10 @@ class ActionFactory
         if ($this->_container->has($handler)){
             return $this->_container->get($handler);
         }
-        throw new UnknownActionException("Данный $handler не зарегистрирован.");
+        throw new UnknownActionException(
+            "Данный $handler не зарегистрирован. Возможно при регистрации сделана опечатка,
+                      либо класс $handler удален"
+        );
     }
 
 }

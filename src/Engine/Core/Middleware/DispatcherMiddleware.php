@@ -5,6 +5,8 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\Core\Middleware;
 
 
+use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\TextResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -37,6 +39,7 @@ class DispatcherMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }catch (UnknownActionException $e){
             //Здесь сделать логирование например того экшена который работает не верно
+            return new TextResponse($e->getMessage());
         }
 
     }
