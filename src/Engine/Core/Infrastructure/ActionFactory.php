@@ -1,24 +1,20 @@
 <?php
 
-declare(strict_types = 1);
 
 namespace Vulpix\Engine\Core\Infrastructure;
 
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
-use Vulpix\Engine\Core\Infrastructure\Exceptions\UnknownMiddlewareException;
+use Psr\Http\Server\RequestHandlerInterface;
+use Vulpix\Engine\Core\Infrastructure\Exceptions\UnknownActionException;
 
-/**
- * Class MiddlewareFactory
- * @package Vulpix\Engine\Infrastructure
- */
-class MiddlewareFactory
+class ActionFactory
 {
     private $_container;
 
     /**
-     * MiddlewareFactory constructor.
+     * ActionFactory constructor.
      * @param ContainerInterface $container
      */
     public function __construct(ContainerInterface $container)
@@ -28,14 +24,14 @@ class MiddlewareFactory
 
     /**
      * @param string|null $handler
-     * @return MiddlewareInterface
-     * @throws UnknownMiddlewareException
+     * @return RequestHandlerInterface
+     * @throws UnknownActionException
      */
-    public function create(?string $handler) : MiddlewareInterface {
+    public function create(?string $handler) : RequestHandlerInterface {
         if ($this->_container->has($handler)){
             return $this->_container->get($handler);
         }
-        throw new UnknownMiddlewareException("Данный $handler не зарегистрирован.");
+        throw new UnknownActionException("Данный $handler не зарегистрирован.");
     }
 
 }
