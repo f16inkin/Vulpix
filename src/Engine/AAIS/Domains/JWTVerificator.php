@@ -7,7 +7,6 @@ namespace Vulpix\Engine\AAIS\Domains;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Проверяет токен.
@@ -17,13 +16,10 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class JWTVerificator
 {
-    public static function verify(ServerRequestInterface $request) : bool {
+    public static function verify(string $accessToken) : bool {
         try{
-            $encodedToken = mb_substr(($request->getHeader('authorization')[0]), 7);
-
-            $secretKey = 'MyTopSecretKey'; //Подгружать из конфигурации
-
-            JWT::decode($encodedToken,$secretKey,['HS256']);
+            $secretKey = JWTCreator::getSecretKey();
+            JWT::decode($accessToken, $secretKey, ['HS256']);
             return true;
         }catch (SignatureInvalidException $e){
             return false;
