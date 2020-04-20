@@ -15,28 +15,53 @@ use Firebase\JWT\JWT;
  */
 class JWTCreator
 {
-    private function preparePayload(){
+    private static $_configs = null;
 
-
+    /**
+     * Одноразовая подгрузка конфигураций для токена
+     *
+     * @return mixed|null
+     */
+    private static function loadConfigs(){
+        if (is_null(self::$_configs)){
+            self::$_configs = include_once 'configs/token.php';
+        }
+        return self::$_configs;
     }
 
-    public static function create() : string {
-        $secretKey = 'MyTopSecretKey'; //Подгружать из конфигурации
+    /**
+     * Конфигурация полезной нагрузки
+     *
+     * @param array $accountDetails
+     * @return array
+     */
+    private static function preparePayload(array $accountDetails) : array {
+        $payload = self::loadConfigs()['payload'];
+        $payload['user']['userName'] = $accountDetails['user_name'];
+        $payload['user']['userId'] = $accountDetails['id'];
+        return $payload;
+    }
 
-        $jwtPayload = [
-            'iss' => "http://example.org1",
-            'sub' => '',
-            'aud' => "http://example.com",
-            'exp' => strtotime('2021-12-01'), //Дата до которой валиден токен
-            'nbf' => 1357000000,
-            'iat' => 1356999524,
-            'jti' => '',
-            'user' => [
-                'userName' => '',
-                'userId' => ''
-            ]
-        ];
+    /**
+     * Единая точка для доступа к секретному ключу для Signature for JWT
+     *
+     * @return string
+     */
+    public static function getSecretKey() : string {
+        $secretKey = self::loadConfigs()['secretKey'];
+        return $secretKey;
+    }
 
+    /**
+     * Creates JWT / access token with custom payload
+     *
+     * @param array $accountDetails
+     * @param string $secretKey
+     * @return string
+     */
+    public static function create(array $accountDetails) : string {
+        $jwtPayload = self::preparePayload($accountDetails);
+        $secretKey = self::getSecretKey();
         return JWT::encode($jwtPayload, $secretKey);
     }
 

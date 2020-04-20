@@ -5,13 +5,13 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\AAIS\Middleware;
 
 
+use Firebase\JWT\JWT;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\Domains\Authentication;
-use Vulpix\Engine\AAIS\Domains\JWTVerificator;
+use Vulpix\Engine\AAIS\Domains\JWTCreator;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
 /**
@@ -24,6 +24,10 @@ class AuthorizationMiddleware implements MiddlewareInterface
 {
     private $_dbConnector;
 
+    /**
+     * AuthorizationMiddleware constructor.
+     * @param IConnector $dbConnector
+     */
     public function __construct(IConnector $dbConnector)
     {
         $this->_dbConnector = $dbConnector;
@@ -38,25 +42,25 @@ class AuthorizationMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /**
-         * 1) Проверка JWT. Если JWT есть и пройдена валидация Пропуск по дальнейшему пути.
-         * 2) Если JWT по каким то причинам не подходит или отсутствует, вернем ответ о необходимости
-         * повторной аутентификации. Заново ввести логин и пароль и получить новый jwt токен.
-         *
-         */
-
-        $token = (new Authentication($this->_dbConnector))->authenticate('Mikki', '12345');
-        $request = $request->withAttribute('jwt', $token);
-
-        if (JWTVerificator::verify($request)){
-            $response = $handler->handle($request);
+        try{
+            /**
+             * В случае если токен был передан в заголовках
+             */
+            if (!empty($request->getHeader('authorization'))){
+                $accessToken = mb_substr(($request->getHeader('authorization')[0]), 7);
+                $secretKey = JWTCreator::getSecretKey();
+                $user = (JWT::decode($accessToken, $secretKey, ['HS256']))->user;
+                $response = $handler->handle($request = $request->withAttribute('User', $user));
+            }
+            /**
+             * Клиент должен обработать 401 статус, перенаправив на авторизацию /authenticate
+             */
+            else{
+                return new JsonResponse(['Unauthorized' => 'Token has not been found'], 401);
+            }
+            return $response;
+        }catch (\Exception $e){
+            return new JsonResponse(['Unauthorized' => $e->getMessage()], 401);
         }
-        else{
-            $response = new JsonResponse('Unauthorized', 401);
-        }
-
-
-
-        return $response;
     }
 }
