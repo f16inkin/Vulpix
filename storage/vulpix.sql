@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.0.1
+-- version 4.8.5
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Апр 21 2020 г., 06:17
+-- Время создания: Апр 23 2020 г., 07:25
 -- Версия сервера: 8.0.15
--- Версия PHP: 7.3.9
+-- Версия PHP: 7.3.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -101,7 +101,9 @@ CREATE TABLE `role_permission` (
 
 INSERT INTO `role_permission` (`id`, `role_id`, `permission_id`) VALUES
 (1, 1, 1),
-(2, 1, 2);
+(2, 1, 2),
+(38, 2, 1),
+(39, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -164,7 +166,8 @@ ALTER TABLE `refresh_tokens`
 -- Индексы таблицы `roles`
 --
 ALTER TABLE `roles`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `role_name` (`role_name`);
 
 --
 -- Индексы таблицы `role_permission`
@@ -208,13 +211,13 @@ ALTER TABLE `refresh_tokens`
 -- AUTO_INCREMENT для таблицы `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id - записи', AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id - записи', AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT для таблицы `role_permission`
 --
 ALTER TABLE `role_permission`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id - записи', AUTO_INCREMENT=3;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id - записи', AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT для таблицы `user_accounts`
