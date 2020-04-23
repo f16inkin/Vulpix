@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 
 namespace Vulpix\Engine\RBAC\Actions;
 
@@ -41,7 +43,7 @@ class DeletePermissionsAction implements RequestHandlerInterface
         try{
             /**
              * Учитывается так же ситуация, когда на маршрут не отправлены параметры.
-             * Если так случилось будет брошено PDO исключение.
+             * Если так случилось будет брошено PDO исключение вызванное нарушением синтаксиса запроса.
              */
             $deleteData = json_decode(file_get_contents("php://input"),true);
             $roleId = (int)$deleteData['roleId'];
