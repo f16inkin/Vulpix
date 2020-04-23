@@ -10,24 +10,24 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\RBAC\Domains\Permission;
-use Vulpix\Engine\RBAC\Responders\GetPermissionsResponder;
+use Vulpix\Engine\RBAC\Responders\PermissionsGetResponder;
 
 /**
- * Class GetPermissionsAction
+ * Class PermissionsGetAction
  * @package Vulpix\Engine\RBAC\Actions
  */
-class GetPermissionsAction implements RequestHandlerInterface
+class PermissionsGetAction implements RequestHandlerInterface
 {
 
     private $_permission;
     private $_responder;
 
     /**
-     * GetPermissionsAction constructor.
+     * PermissionsGetAction constructor.
      * @param Permission $permission
-     * @param GetPermissionsResponder $responder
+     * @param PermissionsGetResponder $responder
      */
-    public function __construct(Permission $permission, GetPermissionsResponder $responder)
+    public function __construct(Permission $permission, PermissionsGetResponder $responder)
     {
         $this->_permission = $permission;
         $this->_responder = $responder;

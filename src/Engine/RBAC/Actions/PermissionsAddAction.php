@@ -11,25 +11,25 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\RBAC\Domains\PermissionManager;
 use Vulpix\Engine\RBAC\Domains\Role;
-use Vulpix\Engine\RBAC\Responders\AddPermissionsResponder;
+use Vulpix\Engine\RBAC\Responders\PermissionsAddResponder;
 
 /**
- * Class AddPermissionsAction
+ * Class PermissionsAddAction
  * @package Vulpix\Engine\RBAC\Actions
  */
-class AddPermissionsAction implements RequestHandlerInterface
+class PermissionsAddAction implements RequestHandlerInterface
 {
     private $_manager;
     private $_role;
     private $_responder;
 
     /**
-     * AddPermissionsAction constructor.
+     * PermissionsAddAction constructor.
      * @param PermissionManager $manager
      * @param Role $role
-     * @param AddPermissionsResponder $responder
+     * @param PermissionsAddResponder $responder
      */
-    public function __construct(PermissionManager $manager, Role $role, AddPermissionsResponder $responder)
+    public function __construct(PermissionManager $manager, Role $role, PermissionsAddResponder $responder)
     {
         $this->_manager = $manager;
         $this->_role = $role;

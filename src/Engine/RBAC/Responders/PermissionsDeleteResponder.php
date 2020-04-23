@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ServerRequestInterface;
 
-class DeletePermissionsResponder
+class PermissionsDeleteResponder
 {
     public function respond(ServerRequestInterface $request, $payload = null): Response
     {

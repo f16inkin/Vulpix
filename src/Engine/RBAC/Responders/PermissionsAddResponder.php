@@ -9,10 +9,10 @@ use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ServerRequestInterface;
 
-class GetPermissionsResponder
+class PermissionsAddResponder
 {
     public function respond(ServerRequestInterface $request, $payload = null): Response
     {
-        return new JsonResponse($payload, 200);
+        return new JsonResponse($payload, 201);
     }
 }

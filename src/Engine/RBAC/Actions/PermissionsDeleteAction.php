@@ -11,23 +11,23 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\RBAC\Domains\PermissionManager;
-use Vulpix\Engine\RBAC\Responders\DeletePermissionsResponder;
+use Vulpix\Engine\RBAC\Responders\PermissionsDeleteResponder;
 
 /**
- * Class DeletePermissionsAction
+ * Class PermissionsDeleteAction
  * @package Vulpix\Engine\RBAC\Actions
  */
-class DeletePermissionsAction implements RequestHandlerInterface
+class PermissionsDeleteAction implements RequestHandlerInterface
 {
     private $_manager;
     private $_responder;
 
     /**
-     * DeletePermissionsAction constructor.
+     * PermissionsDeleteAction constructor.
      * @param PermissionManager $manager
-     * @param DeletePermissionsResponder $responder
+     * @param PermissionsDeleteResponder $responder
      */
-    public function __construct(PermissionManager $manager, DeletePermissionsResponder $responder)
+    public function __construct(PermissionManager $manager, PermissionsDeleteResponder $responder)
     {
         $this->_manager = $manager;
         $this->_responder = $responder;
