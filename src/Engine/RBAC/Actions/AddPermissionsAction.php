@@ -58,7 +58,7 @@ class AddPermissionsAction implements RequestHandlerInterface
             $role = $this->_role->read($roleId);
             $response = $this->_responder->respond($request, $role);
             return $response;
-        }catch (AddPermissionException $e){
+        }catch (\PDOException $e){
             return new JsonResponse(['Ошибка работы БД' => $e->getMessage()], 500);
         }
     }

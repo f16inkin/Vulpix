@@ -13,6 +13,6 @@ class GetPermissionsResponder
 {
     public function respond(ServerRequestInterface $request, $payload = null): Response
     {
-        return new JsonResponse($payload);
+        return new JsonResponse($payload, 200);
     }
 }

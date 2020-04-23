@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\RBAC\Actions;
 
 
+use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -46,12 +47,16 @@ class GetPermissionsAction implements RequestHandlerInterface
          * можно добавить (как разницу между имеющимися у пользователя и доступными в системе).
          * Инициализации и проверка привелегии для контроля доступа проходит в Middleware и Actions
          */
-        $postData = json_decode(file_get_contents("php://input"),true);
-        $roleId = (int)$postData['roleId']; //$request->getAttribute('getParams')['roleId'];
-        $availablePermissions = $this->_permission->getByRole($roleId);
-        $allPermissions = $this->_permission->getAll();
-        $differentPermissions = array_diff($allPermissions, $availablePermissions);
-        $response = $this->_responder->respond($request, $differentPermissions);
-        return $response;
+        try{
+            $postData = json_decode(file_get_contents("php://input"),true);
+            $roleId = (int)$postData['roleId']; //$request->getAttribute('getParams')['roleId'];
+            $availablePermissions = $this->_permission->getByRole($roleId);
+            $allPermissions = $this->_permission->getAll();
+            $differentPermissions = array_diff($allPermissions, $availablePermissions);
+            $response = $this->_responder->respond($request, $differentPermissions);
+            return $response;
+        }catch (\PDOException $e){
+            return new JsonResponse(['Ошибка работы БД' => $e->getMessage()], 500);
+        }
     }
 }
