@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
@@ -9,14 +10,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\RBAC\Domains\Role;
-use Vulpix\Engine\RBAC\Responders\CreateRoleResponder;
+use Vulpix\Engine\RBAC\Responders\RoleCreateResponder;
 
 class RoleCreateAction implements RequestHandlerInterface
 {
     private $_role;
     private $_responder;
 
-    public function __construct(Role $role, CreateRoleResponder $responder)
+    public function __construct(Role $role, RoleCreateResponder $responder)
     {
         $this->_role = $role;
         $this->_responder = $responder;
