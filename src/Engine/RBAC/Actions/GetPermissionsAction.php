@@ -48,8 +48,8 @@ class GetPermissionsAction implements RequestHandlerInterface
          * Инициализации и проверка привелегии для контроля доступа проходит в Middleware и Actions
          */
         try{
-            $postData = json_decode(file_get_contents("php://input"),true);
-            $roleId = (int)$postData['roleId']; //$request->getAttribute('getParams')['roleId'];
+            $getData = json_decode(file_get_contents("php://input"),true);
+            $roleId = (int)$getData['roleId']; //$request->getAttribute('getParams')['roleId'];
             $availablePermissions = $this->_permission->getByRole($roleId);
             $allPermissions = $this->_permission->getAll();
             $differentPermissions = array_diff($allPermissions, $availablePermissions);

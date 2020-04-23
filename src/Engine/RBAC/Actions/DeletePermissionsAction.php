@@ -39,12 +39,18 @@ class DeletePermissionsAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
+            /**
+             * Учитывается так же ситуация, когда на маршрут не отправлены параметры.
+             * Если так случилось будет брошено PDO исключение.
+             */
             $deleteData = json_decode(file_get_contents("php://input"),true);
             $roleId = (int)$deleteData['roleId'];
-            $deletingPermissionsIDs = $deleteData['permissionIDs'];
+            //Дабы не ловить ошибку несоответсвия типов в противном случае отправлю пустой массив.
+            $deletingPermissionsIDs = $deleteData['permissionIDs'] ?: [];
             $this->_manager->deletePermissions($roleId, $deletingPermissionsIDs);
             return $this->_responder->respond($request);
         }catch (\PDOException $e){
+            //В будующем сделаю обработчик ошибок как в Clear Sky. И буду красиво обрабатывать вывод ошибок.
             return new JsonResponse(['Ошибка работы БД' => $e->getMessage()], 500);
         }
     }

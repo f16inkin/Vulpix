@@ -11,7 +11,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\RBAC\Domains\PermissionManager;
 use Vulpix\Engine\RBAC\Domains\Role;
-use Vulpix\Engine\RBAC\Exceptions\AddPermissionException;
 use Vulpix\Engine\RBAC\Responders\AddPermissionsResponder;
 
 /**
@@ -45,10 +44,14 @@ class AddPermissionsAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
+            /**
+             * Учитывается так же ситуация, когда на маршрут не отправлены параметры.
+             * Если так случилось будет возврашен JSON с NULL параметрами.
+             */
             $postData = json_decode(file_get_contents("php://input"),true);
             $roleId = (int)$postData['roleId'];
             //Добавляемые привелегии
-            $addingPermissionsIDs = $postData['permissionIDs'];
+            $addingPermissionsIDs = $postData['permissionIDs'] ?: [];
             //Найденные привелегии для текущей роли
             $foundPermissionIDs = $this->_manager->findRolePermissionIDs($roleId, $addingPermissionsIDs);
             //Те привелегии которые добавляются, которых нет в имеющихся
