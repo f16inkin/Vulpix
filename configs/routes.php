@@ -9,4 +9,10 @@
 $app->get('card.get', '/api/v1/patient-cards/{id}', \Vulpix\Application\PatientCard\Card\Actions\CardGetAction::class)->tokens(['id' => '\d+']);
 $app->post('authenticate', '/authenticate', \Vulpix\Engine\AAIS\Actions\AuthenticateAction::class);
 
+#RBAC - Permissions
+$app->get('permissions.get', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions\PermissionsGetAction::class);
+$app->post('permissions.add', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions\PermissionsAddAction::class);
+$app->delete('permissions.delete', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions\PermissionsDeleteAction::class);
 
+#RBAC - Roles
+$app->post('role.create', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RoleCreateAction::class);
