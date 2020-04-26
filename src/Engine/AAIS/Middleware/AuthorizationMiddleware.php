@@ -49,11 +49,13 @@ class AuthorizationMiddleware implements MiddlewareInterface
             if (!empty($request->getHeader('authorization'))){
                 $accessToken = mb_substr(($request->getHeader('authorization')[0]), 7);
                 $secretKey = JWTCreator::getSecretKey();
-                $user = (JWT::decode($accessToken, $secretKey, ['HS256']))->user;
+                $decoded = (JWT::decode($accessToken, $secretKey, ['HS256']))->user;
+                $user['userId'] = $decoded->userId;
+                $user['userName'] = $decoded->userName;
                 $response = $handler->handle($request = $request->withAttribute('User', $user));
             }
             /**
-             * Клиент должен обработать 401 статус, перенаправив на авторизацию /authenticate
+             * Клиент должен обработать 401 статус, перенаправив на авторизацию /auth/doAuth
              */
             else{
                 return new JsonResponse(['Unauthorized' => 'Token has not been found'], 401);
