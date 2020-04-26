@@ -22,7 +22,7 @@ class JWTCreator
      *
      * @return mixed|null
      */
-    private static function loadConfigs(){
+    private static function loadConfigs() : array {
         if (is_null(self::$_configs)){
             self::$_configs = include_once 'configs/token.php';
         }
@@ -37,8 +37,8 @@ class JWTCreator
      */
     private static function preparePayload(array $accountDetails) : array {
         $payload = self::loadConfigs()['payload'];
-        $payload['user']['userName'] = $accountDetails['user_name'];
-        $payload['user']['userId'] = $accountDetails['id'];
+        $payload['user']['userName'] = $accountDetails['userName'];
+        $payload['user']['userId'] = $accountDetails['userId'];
         return $payload;
     }
 
@@ -50,6 +50,16 @@ class JWTCreator
     public static function getSecretKey() : string {
         $secretKey = self::loadConfigs()['secretKey'];
         return $secretKey;
+    }
+
+    /**
+     * Вернет время окончания действия токена из настроек
+     *
+     * @return mixed
+     */
+    public static function getExpiresIn() : int {
+        $expiresIn = self::loadConfigs()['payload']['exp'];
+        return $expiresIn;
     }
 
     /**

@@ -6,7 +6,6 @@ namespace Vulpix\Engine\AAIS\Domains;
 
 
 use Ramsey\Uuid\Uuid;
-use Vulpix\Engine\AAIS\Exceptions\DeleteRefreshTokenException;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
 /**
@@ -38,7 +37,7 @@ class RTCreator
         $result = $this->_dbConnector::getConnection()->prepare($query);
         $result->execute([
             'token' => $token,
-            'userId' => $accountDetails['id'],
+            'userId' => $accountDetails['userId'],
             'created' => time(),
             'expires' => time() + 60*60*24*30
         ]);
@@ -48,11 +47,17 @@ class RTCreator
         return false;
     }
 
+    /**
+     * Удалить старый рефреш токен для текущего пользователя
+     *
+     * @param array $accountDetails
+     * @return bool
+     */
     private function deleteToken(array $accountDetails) : bool {
-        $query = ("DELETE * FROM `refresh_tokens` WHERE `user_id` = :userId");
+        $query = ("DELETE FROM `refresh_tokens` WHERE `user_id` = :userId");
         $result = $this->_dbConnector::getConnection()->prepare($query);
         $result->execute([
-            'userId' => $accountDetails['id']
+            'userId' => $accountDetails['userId']
         ]);
         if($result){
             return true;
@@ -60,6 +65,12 @@ class RTCreator
         return false;
     }
 
+    /**
+     * Метод создает новый refresh token.
+     *
+     * @param array $accountDetails
+     * @return string
+     */
     public function create(array $accountDetails) : string {
         if ($this->deleteToken($accountDetails)){
             $token = (Uuid::uuid4())->toString();
