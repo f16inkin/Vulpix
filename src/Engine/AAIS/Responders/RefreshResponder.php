@@ -9,13 +9,8 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ServerRequestInterface;
 use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
 
-class AuthenticateResponder
+class RefreshResponder
 {
-    /**
-     * @param ServerRequestInterface $request
-     * @param ExecutionResponse|null $payload
-     * @return Response
-     */
     public function respond(ServerRequestInterface $request, ExecutionResponse $payload): Response
     {
         return new JsonResponse($payload->_body, $payload->_status);
