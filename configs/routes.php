@@ -18,4 +18,8 @@ $app->post('permissions.add', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions
 $app->delete('permissions.delete', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions\PermissionsDeleteAction::class);
 
 #RBAC - Roles
+$app->get('role.get', '/api/v1/roles/{id}', \Vulpix\Engine\RBAC\Actions\RoleGetAction::class)->tokens(['id' => '\d+']);
+$app->get('roles.get', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RoleGetAllAction::class);
 $app->post('role.create', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RoleCreateAction::class);
+$app->put('role.edit', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RoleEditAction::class);
+$app->delete('role.delete', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RoleDeleteAction::class);
