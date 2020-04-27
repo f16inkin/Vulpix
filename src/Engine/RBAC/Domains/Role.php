@@ -5,9 +5,17 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\RBAC\Domains;
 
 
+use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
+use Vulpix\Engine\Core\Foundation\Domain;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
-class Role implements \JsonSerializable
+/**
+ * Класс для CRUD действий над ролями.
+ *
+ * Class Role
+ * @package Vulpix\Engine\RBAC\Domains
+ */
+class Role extends Domain implements \JsonSerializable
 {
     private $_id;
     private $_roleName;
@@ -27,28 +35,38 @@ class Role implements \JsonSerializable
         $this->_dbConnection = $dbConnector::getConnection();
     }
 
+    /**
+     * @param $name
+     * @return mixed
+     */
     public function __get($name)
     {
         return $this->$name;
     }
 
-    public function create(string $roleName, string $roleDescription) : int {
-        $query = ("INSERT INTO `roles` (role_name, role_description) VALUES (:roleName, :roleDescription)");
-        $result = $this->_dbConnection->prepare($query);
-        $result->execute([
-            'roleName' => $roleName,
-            'roleDescription' => $roleDescription
-        ]);
-        return (int)$this->_dbConnection->lastInsertId();
+    public function create(? array $roleDetails) : ExecutionResponse {
+        /**
+         * Если ничего не было передано или же провлена санитизация, будет брошено исключение
+         */
+        $roleDetails = $this->sanitize($roleDetails);
+        /**
+         * Получаю id роли если она имеется, либо создаю новую и возвращаю ее id
+         */
+        $roleId = $this->isRoleExist($roleDetails['roleName']);
+        if (!$roleId){
+            $query = ("INSERT INTO `roles` (role_name, role_description) VALUES (:roleName, :roleDescription)");
+            $result = $this->_dbConnection->prepare($query);
+            $result->execute([
+                'roleName' => $roleDetails['roleName'],
+                'roleDescription' => $roleDetails['roleDescription']
+            ]);
+            return (new ExecutionResponse())->setBody((int)$this->_dbConnection->lastInsertId())->setStatus(201);
+        }
+        return (new ExecutionResponse())->setBody($roleId)->setStatus(200);
     }
 
-    /**
-     * Получить информацию по роли
-     *
-     * @param int $id
-     * @return Role
-     */
-    public function read(int $id) : Role {
+    public function get(? int $id) : Role {
+        $id = $this->sanitize($id);
         $query = ("SELECT * FROM `roles` WHERE `id` = :id");
         $result = $this->_dbConnection->prepare($query);
         $result->execute([
@@ -63,28 +81,43 @@ class Role implements \JsonSerializable
         return $this;
     }
 
-    public function update(int $id){
-        //обновить роль с текущим id
+    public function edit(? array $roleDetails) : ExecutionResponse  {
+        $roleDetails = $this->sanitize($roleDetails);
+        $query = ("UPDATE `roles` SET `role_name` = :roleName, `role_description` = :roleDescription
+                WHERE `id` = :roleId");
+        $result = $this->_dbConnection->prepare($query);
+        $result->execute([
+            'roleId' => $roleDetails['roleId'],
+            'roleName' => $roleDetails['roleName'],
+            'roleDescription' => $roleDetails['roleDescription']
+        ]);
+        return (new ExecutionResponse())->setBody((int)$roleDetails['roleId'])->setStatus(200);
     }
 
-    public function delete(int $id){
-        //удалить роль по текущему id
+    public function delete(? array $roleIDs) : ExecutionResponse {
+        /**
+         * Зачистить массив
+         */
+        $roleIDs= $this->sanitize($roleIDs);
+        /**
+         * Склеить строку для массового удаления
+         */
+        $roleIDs = implode(', ', $roleIDs);
+        $query = ("DELETE FROM `roles` WHERE `id` IN ($roleIDs)");
+        $result = $this->_dbConnection->prepare($query);
+        $result->execute();
+        return (new ExecutionResponse())->setBody('Роль удалена')->setStatus(204);
     }
 
-    /**
-     * Получить весь список ролей приложения
-     *
-     * @return array
-     */
-    public function getAll() : array {
+    public function getAll() : ExecutionResponse{
         $query = ("SELECT * FROM `roles`");
         $result = $this->_dbConnection->prepare($query);
         $result->execute();
-        $roles = [];
         if ($result->rowCount() > 0){
             $roles = $result->fetchAll();
+            return (new ExecutionResponse())->setBody($roles)->setStatus(200);
         }
-        return $roles;
+        return (new ExecutionResponse())->setBody('Ролей в системе не найдено')->setStatus(204);
     }
 
     /**
@@ -96,7 +129,6 @@ class Role implements \JsonSerializable
         return $this->_permissions;
     }
 
-
     /**
      * Записывает в текущую роль все ее привелегии в виде коллекции
      *
@@ -107,7 +139,6 @@ class Role implements \JsonSerializable
         $this->_permissions = $permissions;
         return $this;
     }
-
 
     /**
      * Specify data which should be serialized to JSON
@@ -125,14 +156,22 @@ class Role implements \JsonSerializable
         ];
     }
 
-    public function isROleExist(string $roleName) : bool {
+    /**
+     * Проверка на наличие роли с таким именем (уникально) в БД
+     * Если роль найдена вернет ее id иначе false
+     *
+     * @param string $roleName
+     * @return bool|int
+     */
+    public function isRoleExist(string $roleName) {
         $query = ("SELECT `id` FROM `roles` WHERE `role_name` = :roleName");
         $result = $this->_dbConnection->prepare($query);
         $result->execute([
             'roleName' => $roleName
         ]);
-        if ($result->rowCount() >0){
-            return true;
+        if ($result->rowCount() > 0){
+            $roleId = $result->fetch()['id'];
+            return $roleId;
         }
         return false;
     }
