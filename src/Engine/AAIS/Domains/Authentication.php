@@ -5,7 +5,10 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\AAIS\Domains;
 
 
-use Laminas\Diactoros\Response\JsonResponse;
+use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
+use Vulpix\Engine\Core\Foundation\Domain;
+use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
+use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
 /**
@@ -14,13 +17,17 @@ use Vulpix\Engine\Database\Connectors\IConnector;
  * Class Authentication
  * @package Vulpix\Engine\AAIS\Domains
  */
-class Authentication
+class Authentication extends Domain
 {
     private $_dbConnector;
+    private $_rtCreator;
+    private $_executionResponse;
 
-    public function __construct(IConnector $dbConnector)
+    public function __construct(IConnector $dbConnector, RTCreator $rtCreator, ExecutionResponse $executionResponse)
     {
         $this->_dbConnector = $dbConnector;
+        $this->_rtCreator = $rtCreator;
+        $this->_executionResponse = $executionResponse;
     }
 
     /**
@@ -30,7 +37,7 @@ class Authentication
      * @return bool|mixed
      */
     private function findAccount(string $userName){
-        $query = ("SELECT `id`, `user_name`, `password_hash` FROM `user_accounts` WHERE `user_name` = :userName");
+        $query = ("SELECT `id` as `userId`, `user_name` as `userName`, `password_hash` FROM `user_accounts` WHERE `user_name` = :userName");
         $result = $this->_dbConnector::getConnection()->prepare($query);
         $result->execute([
             'userName' => $userName
@@ -41,43 +48,34 @@ class Authentication
         return false;
     }
 
-    public function authenticate(string $userName, string $userPassword){
-        try{
-            $accountDetails = $this->findAccount($userName);
-            if ($accountDetails !== false){
-                $hash = $accountDetails['password_hash'];
-                $id = $accountDetails['id'];
-                if (password_verify($userPassword, $hash)){
+    /**
+     * @param string $userName
+     * @param string $userPassword
+     * @return ExecutionResponse
+     * @throws WrongParamTypeException
+     */
+    public function authenticate(? string $userName, ? string $userPassword) : ExecutionResponse {
+        /**
+         * Санитизация нужна только для имени пользователя, так как только этот параметр используется в обращении к БД.
+         */
+        $userName = Sanitizer::sanitize($userName);
+        $accountDetails = $this->findAccount($userName);
+        if ($accountDetails !== false){
+            $hash = $accountDetails['password_hash'];
+            if (password_verify($userPassword, $hash)){
+                $tokens = [
+                    'accessToken' => JWTCreator::create($accountDetails),
+                    'refreshToken' => $this->_rtCreator->create($accountDetails),
                     /**
-                     * Дальше мне нужно каждый установить уникальный ключ, который будет потом сверятс яс сессией и
-                     * Cookie для того, чтобы знать. Был ли выполнен вход в эту учетную запись на другой машине.
-                     * При каждом новом логине ключ обновляется, а значит, на старом устройстве будет log off.
-                     * --------------------------------------------------------------------------------------------
-                     * Если пароль прошел, то обновляю ключ
+                     * По факту в клиент будет улетать время окончания на минуту меньше чем на самом деле.
                      */
-                    $key = sha1(uniqid().$userName);
-                    $query = ("UPDATE `user_accounts` SET `secret_key` = :secret_key WHERE `id` = :id");
-                    $result = $this->_dbConnector::getConnection()->prepare($query);
-                    $result->execute([
-                        'secret_key' => $key,
-                        'id' => $id
-                    ]);
-                    return $tokens = [
-                        'accessToken' => JWTCreator::create($accountDetails),
-                        'refreshToken' => (new RTCreator($this->_dbConnector))->create($accountDetails),
-                        'expiresIn' => time() - 60
-                        /**
-                         * По факту в клиент будет улетать время окончания на минуту меньше чем на самом деле.
-                         */
-                    ];
-                }
-                return new JsonResponse(['Forbidden' => 'Пароль не верен.'], 403);
+                    'expiresIn' => JWTCreator::getExpiresIn() - 60
+                ];
+                return $this->_executionResponse->setBody($tokens)->setStatus(200);
             }
-            return new JsonResponse(['Forbidden' => 'Такой учетной записи не существует в системе'], 403);
-        }catch (\Exception $e){
-            //Можно так же логировать ошибку
-            //return new JsonResponse(['Auth error' => $e->getMessage()], 500);
+            return $this->_executionResponse->setBody(['Forbidden' => 'Пароль не верен.'])->setStatus(403);
         }
+        return $this->_executionResponse->setBody(['Forbidden' => 'Такой учетной записи не существует в системе'])->setStatus(403);
     }
 
 }
