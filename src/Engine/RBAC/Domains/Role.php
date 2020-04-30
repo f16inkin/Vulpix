@@ -5,8 +5,10 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\RBAC\Domains;
 
 
+use JsonSerializable;
 use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
-use Vulpix\Engine\Core\Foundation\Domain;
+use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
+use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
 /**
@@ -15,7 +17,7 @@ use Vulpix\Engine\Database\Connectors\IConnector;
  * Class Role
  * @package Vulpix\Engine\RBAC\Domains
  */
-class Role extends Domain implements \JsonSerializable
+class Role implements JsonSerializable
 {
     private $_id;
     private $_roleName;
@@ -44,11 +46,16 @@ class Role extends Domain implements \JsonSerializable
         return $this->$name;
     }
 
+    /**
+     * @param array|null $roleDetails
+     * @return ExecutionResponse
+     * @throws WrongParamTypeException
+     */
     public function create(? array $roleDetails) : ExecutionResponse {
         /**
          * Если ничего не было передано или же провлена санитизация, будет брошено исключение
          */
-        $roleDetails = $this->sanitize($roleDetails);
+        $roleDetails = Sanitizer::sanitize($roleDetails);
         /**
          * Получаю id роли если она имеется, либо создаю новую и возвращаю ее id
          */
@@ -65,8 +72,13 @@ class Role extends Domain implements \JsonSerializable
         return (new ExecutionResponse())->setBody($roleId)->setStatus(200);
     }
 
+    /**
+     * @param int|null $id
+     * @return Role
+     * @throws WrongParamTypeException
+     */
     public function get(? int $id) : Role {
-        $id = $this->sanitize($id);
+        $id = Sanitizer::sanitize($id);
         $query = ("SELECT * FROM `roles` WHERE `id` = :id");
         $result = $this->_dbConnection->prepare($query);
         $result->execute([
@@ -81,8 +93,13 @@ class Role extends Domain implements \JsonSerializable
         return $this;
     }
 
+    /**
+     * @param array|null $roleDetails
+     * @return ExecutionResponse
+     * @throws WrongParamTypeException
+     */
     public function edit(? array $roleDetails) : ExecutionResponse  {
-        $roleDetails = $this->sanitize($roleDetails);
+        $roleDetails = Sanitizer::sanitize($roleDetails);
         $query = ("UPDATE `roles` SET `role_name` = :roleName, `role_description` = :roleDescription
                 WHERE `id` = :roleId");
         $result = $this->_dbConnection->prepare($query);
@@ -94,11 +111,16 @@ class Role extends Domain implements \JsonSerializable
         return (new ExecutionResponse())->setBody((int)$roleDetails['roleId'])->setStatus(200);
     }
 
+    /**
+     * @param array|null $roleIDs
+     * @return ExecutionResponse
+     * @throws WrongParamTypeException
+     */
     public function delete(? array $roleIDs) : ExecutionResponse {
         /**
          * Зачистить массив
          */
-        $roleIDs= $this->sanitize($roleIDs);
+        $roleIDs= Sanitizer::sanitize($roleIDs);
         /**
          * Склеить строку для массового удаления
          */
