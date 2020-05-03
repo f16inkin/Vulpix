@@ -41,7 +41,7 @@ class RefreshAction implements RequestHandlerInterface
     {
         try{
             $postData = json_decode(file_get_contents("php://input"),true);
-            $result = $this->_refresh->refresh($postData['refreshToken'], $postData['user']);
+            $result = $this->_refresh->refresh($postData['refreshToken'], $postData['accessToken']);
             $response = $this->_responder->respond($request, $result);
             return $response;
         }catch (\Exception $e){

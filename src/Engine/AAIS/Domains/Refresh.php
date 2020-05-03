@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\AAIS\Domains;
 
 
+use Vulpix\Engine\AAIS\Exceptions\WrongAccessTokenException;
 use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
 use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
 use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
@@ -56,14 +57,33 @@ class Refresh
     }
 
     /**
+     * @param string|null $accessToken
+     * @return mixed
+     * @throws WrongParamTypeException
+     * @throws WrongAccessTokenException
+     */
+    private function getAccountDetails(? string $accessToken){
+        if (!empty($accessToken) && isset($accessToken)){
+            [$header, $payload, $signature] = explode(".", $accessToken);
+            $accountDetails = json_decode(base64_decode($payload))->user;
+            if (isset($accountDetails)){
+                return (array)$accountDetails;
+            }
+            throw new WrongAccessTokenException();
+        }
+        throw new WrongParamTypeException('В метод переданы параметры с неверным типом. Либо null, empty');
+    }
+
+    /**
      * Генерация нового refresh токена
      *
      * @param string $oldToken
      * @param array $accountDetails
      * @return ExecutionResponse
      * @throws WrongParamTypeException
+     * @throws WrongAccessTokenException
      */
-    public function refresh(string $oldToken, ? array $accountDetails) : ExecutionResponse{
+    public function refresh(string $oldToken, ? string $accessToken) : ExecutionResponse{
         /**
          * Я должен сделать проверку пришедшего refresh токена.
          * Если он совпадает с тем что хранится в базе, занчит можно выдавать новую пару токенов.
@@ -72,7 +92,7 @@ class Refresh
          * проблем валидировать здесь спуся время окнчания аксес токена.
          */
         $oldToken = Sanitizer::sanitize($oldToken);
-        $accountDetails = Sanitizer::sanitize($accountDetails);
+        $accountDetails = $this->getAccountDetails($accessToken);
         if ($this->validate($oldToken, $accountDetails)){
             $tokens = [
                 'accessToken' => JWTCreator::create($accountDetails),

@@ -21,7 +21,7 @@ class Sanitizer
      * @throws WrongParamTypeException
      */
     private static function validate($structure){
-        if (!empty($structure && isset($structure))){
+        if (!empty($structure) && isset($structure)){
             return $structure;
         }
         throw new WrongParamTypeException('В метод переданы параметры с неверным типом. Либо null, empty');

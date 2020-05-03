@@ -41,6 +41,10 @@ class AAISExceptionsHandler extends ExceptionsHandler
         return (new JsonResponse($e->getMessage(),400));
     }
 
+    private function handleWrongAccessTokenException(\Exception $e){
+        return (new JsonResponse($e->getMessage(),400));
+    }
+
     /**
      * Фабричный метод для обработки всех возможных Exceptions.
      *
