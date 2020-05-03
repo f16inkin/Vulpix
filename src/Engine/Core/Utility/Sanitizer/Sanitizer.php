@@ -8,6 +8,8 @@ namespace Vulpix\Engine\Core\Utility\Sanitizer;
 use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
 
 /**
+ * Очищает от спецсимволов одномерные массивы, строки, числа.
+ *
  * Class Sanitizer
  * @package Vulpix\Engine\Core\Utility\Sanitizer
  */
@@ -54,11 +56,12 @@ class Sanitizer
         $structure = self::validate($structure);
         if (is_array($structure)){
             foreach ($structure as $key => $value) {
-                $sanitized[$key] = (int) $value;
+                $sanitized[$key] = (int) preg_replace ("/[^0-9]/","", $structure);
             }
             return $sanitized;
         }else{
-            return (int) $structure;
+            $sanitized = preg_replace ("/[^0-9]/","", $structure);
+            return (int) $sanitized;
         }
     }
 
