@@ -20,7 +20,7 @@ class JWTCreator
     /**
      * Одноразовая подгрузка конфигураций для токена
      *
-     * @return mixed|null
+     * @return array
      */
     private static function loadConfigs() : array {
         if (is_null(self::$_configs)){
@@ -55,7 +55,7 @@ class JWTCreator
     /**
      * Вернет время окончания действия токена из настроек
      *
-     * @return mixed
+     * @return int
      */
     public static function getExpiresIn() : int {
         $expiresIn = self::loadConfigs()['payload']['exp'];
@@ -66,7 +66,6 @@ class JWTCreator
      * Creates JWT / access token with custom payload
      *
      * @param array $accountDetails
-     * @param string $secretKey
      * @return string
      */
     public static function create(array $accountDetails) : string {

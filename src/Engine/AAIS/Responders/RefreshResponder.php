@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Responders;
 
@@ -11,6 +12,11 @@ use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
 
 class RefreshResponder
 {
+    /**
+     * @param ServerRequestInterface $request
+     * @param ExecutionResponse $payload
+     * @return Response
+     */
     public function respond(ServerRequestInterface $request, ExecutionResponse $payload): Response
     {
         return new JsonResponse($payload->_body, $payload->_status);

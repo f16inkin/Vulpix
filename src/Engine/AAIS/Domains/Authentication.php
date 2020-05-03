@@ -22,6 +22,12 @@ class Authentication
     private $_rtCreator;
     private $_executionResponse;
 
+    /**
+     * Authentication constructor.
+     * @param IConnector $dbConnector
+     * @param RTCreator $rtCreator
+     * @param ExecutionResponse $executionResponse
+     */
     public function __construct(IConnector $dbConnector, RTCreator $rtCreator, ExecutionResponse $executionResponse)
     {
         $this->_dbConnector = $dbConnector;
@@ -32,7 +38,7 @@ class Authentication
     /**
      * Проверяет наличие учетной записи пользователя, для дальнейшей авторизации
      *
-     * @param string $login
+     * @param string $userName
      * @return bool|mixed
      */
     private function findAccount(string $userName){
@@ -48,8 +54,12 @@ class Authentication
     }
 
     /**
-     * @param string $userName
-     * @param string $userPassword
+     * Проводит аутентификацию пользователя по заданным параметрам.
+     * Может отвечать сообщениями с необходимой информацией об ошибке аутентификации.
+     * В случае успеха вернет пару из access / refresh tokens + expire time for access token.
+     *
+     * @param string|null $userName
+     * @param string|null $userPassword
      * @return ExecutionResponse
      * @throws WrongParamTypeException
      */

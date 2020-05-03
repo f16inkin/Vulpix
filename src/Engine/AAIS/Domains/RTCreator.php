@@ -28,6 +28,8 @@ class RTCreator
     }
 
     /**
+     * Установит значение нового сгенерированного токена в БД.
+     *
      * @param string $token
      * @param array $accountDetails
      * @return bool
@@ -48,7 +50,7 @@ class RTCreator
     }
 
     /**
-     * Удалить старый рефреш токен для текущего пользователя
+     * Удалит старый рефреш токен для текущего пользователя.
      *
      * @param array $accountDetails
      * @return bool

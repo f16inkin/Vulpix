@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Responders;
 
@@ -13,7 +14,7 @@ class AuthenticateResponder
 {
     /**
      * @param ServerRequestInterface $request
-     * @param ExecutionResponse|null $payload
+     * @param ExecutionResponse $payload
      * @return Response
      */
     public function respond(ServerRequestInterface $request, ExecutionResponse $payload): Response

@@ -26,6 +26,8 @@ class Refresh
     /**
      * Refresh constructor.
      * @param IConnector $_dbConnector
+     * @param RTCreator $rtCreator
+     * @param ExecutionResponse $executionResponse
      */
     public function __construct(IConnector $_dbConnector, RTCreator $rtCreator, ExecutionResponse $executionResponse)
     {
@@ -39,11 +41,11 @@ class Refresh
      * Если токен который пришел есть в базе данных для текущего пользователя, значит валидация прошла
      * и можно выдавать новую пару ключей.
      *
-     * @param string $oldToken
-     * @param int $userId
+     * @param string|null $oldToken
+     * @param array|null $accountDetails
      * @return bool
      */
-    private function validate(string $oldToken, ? array $accountDetails) : bool {
+    private function validate(? string $oldToken, ? array $accountDetails) : bool {
         $query = ("SELECT * FROM `refresh_tokens` WHERE `token` = :oldToken AND `user_id` = :userId");
         $result = $this->_dbConnection->prepare($query);
         $result->execute([
@@ -57,12 +59,14 @@ class Refresh
     }
 
     /**
+     * Вернет пользовательские данные переданные в старом accessToken.
+     *
      * @param string|null $accessToken
-     * @return mixed
-     * @throws WrongParamTypeException
+     * @return array
      * @throws WrongAccessTokenException
+     * @throws WrongParamTypeException
      */
-    private function getAccountDetails(? string $accessToken){
+    private function getAccountDetails(? string $accessToken) : array {
         if (!empty($accessToken) && isset($accessToken)){
             [$header, $payload, $signature] = explode(".", $accessToken);
             $accountDetails = json_decode(base64_decode($payload))->user;
@@ -75,15 +79,15 @@ class Refresh
     }
 
     /**
-     * Генерация нового refresh токена
+     * Генерация нового refresh токена.
      *
-     * @param string $oldToken
-     * @param array $accountDetails
+     * @param string|null $oldToken
+     * @param string|null $accessToken
      * @return ExecutionResponse
-     * @throws WrongParamTypeException
      * @throws WrongAccessTokenException
+     * @throws WrongParamTypeException
      */
-    public function refresh(string $oldToken, ? string $accessToken) : ExecutionResponse{
+    public function refresh(? string $oldToken, ? string $accessToken) : ExecutionResponse{
         /**
          * Я должен сделать проверку пришедшего refresh токена.
          * Если он совпадает с тем что хранится в базе, занчит можно выдавать новую пару токенов.

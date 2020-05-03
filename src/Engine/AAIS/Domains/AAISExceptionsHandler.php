@@ -16,6 +16,11 @@ use Vulpix\Engine\Core\Utility\ExceptionsHandler\ExceptionsHandler;
 class AAISExceptionsHandler extends ExceptionsHandler
 {
 
+    /**
+     * Обработка ошибки связанной с неверной подписью JWT.
+     *
+     * @return JsonResponse
+     */
     private function handleSignatureInvalidException() : JsonResponse {
         /**
          * Если вдруг оказалось, что JWT токен имеет неверную подпись.
@@ -26,6 +31,8 @@ class AAISExceptionsHandler extends ExceptionsHandler
     }
 
     /**
+     * Обработка ошибки связанной с окончанием действия JWT.
+     *
      * @return JsonResponse
      */
     private function handleExpiredException() : JsonResponse {
@@ -37,10 +44,22 @@ class AAISExceptionsHandler extends ExceptionsHandler
         return $response->withHeader('Location', '/auth/doRefresh');
     }
 
+    /**
+     * Обработка ошибки связанной с неверными $header, $payload в JWT.
+     *
+     * @param \Exception $e
+     * @return JsonResponse
+     */
     private function handleWrongParamTypeException(\Exception $e) : JsonResponse {
         return (new JsonResponse($e->getMessage(),400));
     }
 
+    /**
+     * Обработка ошибки связанной с передачей empty, null параметров в метод.
+     *
+     * @param \Exception $e
+     * @return JsonResponse
+     */
     private function handleWrongAccessTokenException(\Exception $e){
         return (new JsonResponse($e->getMessage(),400));
     }
