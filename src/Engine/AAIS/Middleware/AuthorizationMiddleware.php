@@ -12,7 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\AAIS\Domains\JWTCreator;
-use Vulpix\Engine\Database\Connectors\IConnector;
+use Vulpix\Engine\AAIS\Domains\AAISExceptionsHandler;
 
 /**
  * Авторизация - проверка прав пользователя на ДОСТУП к определенным ресурсам.
@@ -22,17 +22,6 @@ use Vulpix\Engine\Database\Connectors\IConnector;
  */
 class AuthorizationMiddleware implements MiddlewareInterface
 {
-    private $_dbConnector;
-
-    /**
-     * AuthorizationMiddleware constructor.
-     * @param IConnector $dbConnector
-     */
-    public function __construct(IConnector $dbConnector)
-    {
-        $this->_dbConnector = $dbConnector;
-    }
-
     /**
      * Process an incoming server request.
      *
@@ -55,14 +44,15 @@ class AuthorizationMiddleware implements MiddlewareInterface
                 $response = $handler->handle($request = $request->withAttribute('User', $user));
             }
             /**
-             * Клиент должен обработать 401 статус, перенаправив на авторизацию /auth/doAuth
+             * Иначе клиент должен обработать 401 статус, перенаправив на авторизацию /auth/doAuth
              */
             else{
-                return new JsonResponse(['Unauthorized' => 'Token has not been found'], 401);
+                $response = new JsonResponse('Access токен не найден в заголовке Authorization', 401);
+                return $response->withHeader('Location', '/auth/doAuth');
             }
             return $response;
         }catch (\Exception $e){
-            return new JsonResponse(['Unauthorized' => $e->getMessage()], 401);
+             return  (new AAISExceptionsHandler())->handle($e);
         }
     }
 }

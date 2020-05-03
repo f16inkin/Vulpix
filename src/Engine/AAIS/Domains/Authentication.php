@@ -6,7 +6,6 @@ namespace Vulpix\Engine\AAIS\Domains;
 
 
 use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
-use Vulpix\Engine\Core\Foundation\Domain;
 use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
 use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 use Vulpix\Engine\Database\Connectors\IConnector;
@@ -17,7 +16,7 @@ use Vulpix\Engine\Database\Connectors\IConnector;
  * Class Authentication
  * @package Vulpix\Engine\AAIS\Domains
  */
-class Authentication extends Domain
+class Authentication
 {
     private $_dbConnector;
     private $_rtCreator;
