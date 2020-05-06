@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
+use Vulpix\Engine\RBAC\Domains\PermissionCollection;
 use Vulpix\Engine\RBAC\Domains\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Domains\Role;
 use Vulpix\Engine\RBAC\Responders\RoleGetResponder;
@@ -20,6 +21,7 @@ use Vulpix\Engine\RBAC\Responders\RoleGetResponder;
 class RoleGetAction implements RequestHandlerInterface
 {
     private $_role;
+    private $_permissions;
     private $_responder;
 
     /**
@@ -27,10 +29,13 @@ class RoleGetAction implements RequestHandlerInterface
      * @param Role $role
      * @param RoleGetResponder $responder
      */
-    public function __construct(Role $role, RoleGetResponder $responder)
+    public function __construct(Role $role, PermissionCollection $permissions, RoleGetResponder $responder)
     {
         $this->_role = $role;
+        $this->_permissions = $permissions;
         $this->_responder = $responder;
+
+
     }
 
     /**
@@ -43,7 +48,8 @@ class RoleGetAction implements RequestHandlerInterface
         try{
             $roleId = (int)$request->getAttribute('id') ?: null;
             $role = $this->_role->get($roleId);
-            $response = $this->_responder->respond($request, (new ExecutionResponse())->setBody($role)->setStatus(200));
+            $permissions = $this->_permissions->initPermissions($roleId);
+            $response = $this->_responder->respond($request, (new ExecutionResponse())->setBody($role->setPermissions($permissions))->setStatus(200));
             return $response;
         }catch (\Exception $e){
             return (new RBACExceptionsHandler())->handle($e);

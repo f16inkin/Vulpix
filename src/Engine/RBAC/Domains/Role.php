@@ -21,7 +21,7 @@ class Role implements JsonSerializable
 {
     private $_id;
     private $_roleName;
-    private $_rolePermission;
+    private $_roleDescription;
     /**
      * @var PermissionCollection $_permissions
      */
@@ -88,7 +88,7 @@ class Role implements JsonSerializable
             $row = $result->fetchAll();
             $this->_id = $row[0]['id'];
             $this->_roleName = $row[0]['role_name'];
-            $this->_rolePermission = $row[0]['role_description'];
+            $this->_roleDescription = $row[0]['role_description'];
         }
         return $this;
     }
@@ -174,7 +174,8 @@ class Role implements JsonSerializable
         return [
             'id' => $this->_id,
             'roleName' => $this->_roleName,
-            'rolePermission' => $this->_rolePermission
+            'roleDescription' => $this->_roleDescription,
+            'permissions' => $this->_permissions
         ];
     }
 

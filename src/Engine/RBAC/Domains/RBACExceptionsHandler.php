@@ -24,8 +24,12 @@ class RBACExceptionsHandler
      *
      * @return JsonResponse
      */
-    private function handle_1062() : JsonResponse{
+    private function handle_1062() : JsonResponse {
         return (new JsonResponse('Данная роль уже присутсвует в системе',500));
+    }
+
+    private function handle_1064() : JsonResponse {
+        return (new JsonResponse('На обработку переданы не верные аргументы',400));
     }
 
     /**
@@ -41,7 +45,7 @@ class RBACExceptionsHandler
     }
 
     private function handleWrongParamsTypeException() : JsonResponse {
-        return (new JsonResponse('Не заданы параметры',204));
+        return (new JsonResponse('На обработку переданы не верные аргументы',400));
     }
 
     /**

@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\Core\Utility\Sanitizer;
 
-
 use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
 
 /**

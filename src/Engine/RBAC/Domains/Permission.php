@@ -4,7 +4,8 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Domains;
 
-
+use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
+use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
 /**
@@ -31,8 +32,10 @@ class Permission
      *
      * @param int $roleId
      * @return array
+     * @throws WrongParamTypeException
      */
-    public function getByRole(int $roleId) : array {
+    public function getByRole(? int $roleId) : array {
+        $roleId = Sanitizer::sanitize($roleId);
         $query = ("SELECT `permissions`.`id` as `id`, `permission_name`, `permission_description` FROM `permissions`
                     INNER JOIN `role_permission` ON `permissions`.`id` = `role_permission`.`permission_id`
                     WHERE `role_permission`.role_id = :roleId");

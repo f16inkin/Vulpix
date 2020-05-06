@@ -13,7 +13,8 @@ $app->post('authenticate', '/auth/doAuth', \Vulpix\Engine\AAIS\Actions\Authentic
 $app->post('refresh', '/auth/doRefresh', \Vulpix\Engine\AAIS\Actions\RefreshAction::class);
 
 #RBAC - Permissions
-$app->get('permissions.get', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions\PermissionsGetAction::class);
+$app->get('permissions.get.different', '/api/v1/permissions/different', \Vulpix\Engine\RBAC\Actions\PermissionsGetDiffAction::class);
+$app->get('permissions.get.all', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions\PermissionsGetAction::class);
 $app->post('permissions.add', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions\PermissionsAddAction::class);
 $app->delete('permissions.delete', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions\PermissionsDeleteAction::class);
 

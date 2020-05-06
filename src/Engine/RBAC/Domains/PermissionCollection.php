@@ -25,16 +25,21 @@ class PermissionCollection implements \JsonSerializable
         return isset($this->_permissions[$permission]);
     }
 
-    public function initPermissions(int $roleId) : PermissionCollection {
-        $query = ("SELECT `permission_name`, `permission_description` FROM `role_permission`
+    public function initPermissions(? int $roleId) : PermissionCollection {
+        /*
+         * Если нет знаний об id искомой роли, то вернуть пустую коллекцию
+         */
+        if (isset($roleId)){
+            $query = ("SELECT `permission_name`, `permission_description` FROM `role_permission`
                     INNER JOIN `permissions` ON permissions.id = role_permission.permission_id
                     WHERE `role_permission`.role_id = :roleId");
-        $result = $this->_dbConnector::getConnection()->prepare($query);
-        $result->execute([
-            'roleId' => $roleId
-        ]);
-        while ($row = $result->fetch()){
-            $this->_permissions[$row['permission_name']] = $row['permission_description'];
+            $result = $this->_dbConnector::getConnection()->prepare($query);
+            $result->execute([
+                'roleId' => $roleId
+            ]);
+            while ($row = $result->fetch()){
+                $this->_permissions[$row['permission_name']] = $row['permission_description'];
+            }
         }
         return $this;
     }

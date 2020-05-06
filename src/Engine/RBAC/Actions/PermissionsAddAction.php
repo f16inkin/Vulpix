@@ -8,6 +8,7 @@ namespace Vulpix\Engine\RBAC\Actions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Vulpix\Engine\RBAC\Domains\PermissionCollection;
 use Vulpix\Engine\RBAC\Domains\PermissionManager;
 use Vulpix\Engine\RBAC\Domains\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Domains\Role;
@@ -21,6 +22,7 @@ class PermissionsAddAction implements RequestHandlerInterface
 {
     private $_manager;
     private $_role;
+    private $_permissions;
     private $_responder;
 
     /**
@@ -29,10 +31,11 @@ class PermissionsAddAction implements RequestHandlerInterface
      * @param Role $role
      * @param PermissionsAddResponder $responder
      */
-    public function __construct(PermissionManager $manager, Role $role, PermissionsAddResponder $responder)
+    public function __construct(PermissionManager $manager, PermissionCollection $permissions, Role $role, PermissionsAddResponder $responder)
     {
         $this->_manager = $manager;
         $this->_role = $role;
+        $this->_permissions = $permissions;
         $this->_responder = $responder;
     }
 
@@ -66,7 +69,8 @@ class PermissionsAddAction implements RequestHandlerInterface
             $exec = $this->_manager->addPermissions($roleId, $permissionsIDs);
             //Полная ифнормация по роли
             $role = $this->_role->get($exec->_body);
-            $response = $this->_responder->respond($request, $exec->setBody($role));
+            $permissions = $this->_permissions->initPermissions($roleId);
+            $response = $this->_responder->respond($request, $exec->setBody($role->setPermissions($permissions)));
             return $response;
         }catch (\Exception $e){
             return (new RBACExceptionsHandler())->handle($e);

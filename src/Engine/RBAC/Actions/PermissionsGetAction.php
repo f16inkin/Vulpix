@@ -1,29 +1,29 @@
 <?php
 
-declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
 
-use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\RBAC\Domains\Permission;
+use Vulpix\Engine\RBAC\Domains\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\PermissionsGetResponder;
 
 /**
+ * Класс вернет все привелегии системы, разделенные на группы
+ *
  * Class PermissionsGetAction
  * @package Vulpix\Engine\RBAC\Actions
  */
 class PermissionsGetAction implements RequestHandlerInterface
 {
-
     private $_permission;
     private $_responder;
 
     /**
-     * PermissionsGetAction constructor.
+     * PermissionsGetDiffAction constructor.
      * @param Permission $permission
      * @param PermissionsGetResponder $responder
      */
@@ -40,23 +40,12 @@ class PermissionsGetAction implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        /**
-         * Ищет разницу для не существующих ролей
-         * Другими словами если будет задана в параметр роль с несуществующим ID, метод вернет в ответ все привелегии.
-         * На контроль доступа это никак не повлияет, так как данный метод всего лишь выводит те привелегии которые
-         * можно добавить (как разницу между имеющимися у пользователя и доступными в системе).
-         * Инициализации и проверка привелегии для контроля доступа проходит в Middleware и Actions
-         */
         try{
-            $getData = json_decode(file_get_contents("php://input"),true);
-            $roleId = (int)$getData['roleId']; //$request->getAttribute('getParams')['roleId'];
-            $availablePermissions = $this->_permission->getByRole($roleId);
-            $allPermissions = $this->_permission->getAll();
-            $differentPermissions = array_diff($allPermissions, $availablePermissions);
-            $response = $this->_responder->respond($request, $differentPermissions);
+            $permissions = $this->_permission->getAll();
+            $response = $this->_responder->respond($request, $permissions);
             return $response;
-        }catch (\PDOException $e){
-            return new JsonResponse(['Ошибка работы БД' => $e->getMessage()], 500);
+        }catch (\Exception $e){
+            return (new RBACExceptionsHandler())->handle($e);
         }
     }
 }
