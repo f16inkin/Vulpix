@@ -75,7 +75,7 @@ class AAISExceptionsHandler extends ExceptionsHandler
         if (method_exists($this, $method)){
             return $this->$method($e);
         }else{
-            return $this->unhandled();
+            return $this->unhandled($e);
         }
     }
 

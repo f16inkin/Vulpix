@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -50,10 +49,6 @@ class PermissionsAddAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            /**
-             * Учитывается так же ситуация, когда на маршрут не отправлены параметры.
-             * Если так случилось будет возврашен JSON с NULL параметрами.
-             */
             $postData = json_decode(file_get_contents("php://input"),true) ?: null;
             $roleId = (int)$postData['roleId'] ?: null;
             //Добавляемые привелегии
@@ -64,7 +59,7 @@ class PermissionsAddAction implements RequestHandlerInterface
             $permissionsIDs = array_diff($addingPermissionsIDs, $foundPermissionIDs);
             /**
              * Вернет либо 201 либо 200 статус в результате выполнения. На клиенете будет проще различать по статусу
-             * были ли добавлены првиелегии, либо запрос прошел и добавляемые првиелегии уже были у роли.
+             * были ли добавлены привелегии, либо запрос прошел и добавляемые првиелегии уже были у роли.
              */
             $exec = $this->_manager->addPermissions($roleId, $permissionsIDs);
             //Полная ифнормация по роли

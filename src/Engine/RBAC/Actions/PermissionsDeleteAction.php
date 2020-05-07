@@ -2,9 +2,7 @@
 
 declare(strict_types = 1);
 
-
 namespace Vulpix\Engine\RBAC\Actions;
-
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

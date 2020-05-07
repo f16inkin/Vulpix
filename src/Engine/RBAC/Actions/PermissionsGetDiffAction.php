@@ -4,11 +4,9 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 use Vulpix\Engine\RBAC\Domains\Permission;
 use Vulpix\Engine\RBAC\Domains\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\PermissionsGetDiffResponder;
@@ -21,7 +19,6 @@ use Vulpix\Engine\RBAC\Responders\PermissionsGetDiffResponder;
  */
 class PermissionsGetDiffAction implements RequestHandlerInterface
 {
-
     private $_permission;
     private $_responder;
 
@@ -51,19 +48,9 @@ class PermissionsGetDiffAction implements RequestHandlerInterface
          * Инициализации и проверка привелегии для контроля доступа проходит в Middleware и Actions
          */
         try{
-            $arr = [
-                0 => 'значение 0',
-                1 => [
-                    0 => 'значение 1',
-                    1 => 'значение финал'
-                ]
-            ];
-            $a = Sanitizer::sanitize($arr);
             $getData = json_decode(file_get_contents("php://input"),true) ?: null;
             $roleId = (int)$getData['roleId'] ?: null; //$request->getAttribute('getParams')['roleId'];
-            $availablePermissions = $this->_permission->getByRole($roleId);
-            $allPermissions = $this->_permission->getAll();
-            $differentPermissions = array_diff($allPermissions, $availablePermissions);
+            $differentPermissions = $this->_permission->getDifferentPermissions($roleId);
             $response = $this->_responder->respond($request, $differentPermissions);
             return $response;
         }catch (\Exception $e){

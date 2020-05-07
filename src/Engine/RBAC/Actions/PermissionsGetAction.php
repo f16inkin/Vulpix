@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
-
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\RBAC\Domains\Permission;
+use Vulpix\Engine\RBAC\Domains\PermissionManager;
 use Vulpix\Engine\RBAC\Domains\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\PermissionsGetResponder;
 
@@ -20,6 +21,7 @@ use Vulpix\Engine\RBAC\Responders\PermissionsGetResponder;
 class PermissionsGetAction implements RequestHandlerInterface
 {
     private $_permission;
+    private $_manager;
     private $_responder;
 
     /**
@@ -27,9 +29,10 @@ class PermissionsGetAction implements RequestHandlerInterface
      * @param Permission $permission
      * @param PermissionsGetResponder $responder
      */
-    public function __construct(Permission $permission, PermissionsGetResponder $responder)
+    public function __construct(PermissionManager $manager, PermissionsGetResponder $responder)
     {
-        $this->_permission = $permission;
+        $this->_permission = 'PermissionsGet';
+        $this->_manager = $manager;
         $this->_responder = $responder;
     }
 
@@ -41,7 +44,7 @@ class PermissionsGetAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            $permissions = $this->_permission->getAll();
+            $permissions = $this->_manager->getAll();
             $response = $this->_responder->respond($request, $permissions);
             return $response;
         }catch (\Exception $e){

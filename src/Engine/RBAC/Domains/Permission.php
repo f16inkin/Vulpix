@@ -28,7 +28,69 @@ class Permission
     }
 
     /**
-     * Найти привелегии для текущей роли
+     * @param int|null $roleId
+     * @return array
+     * @throws WrongParamTypeException
+     */
+    public function getDifferentPermissions(? int $roleId) : array {
+        $roleId = Sanitizer::transformToInt($roleId);
+        /**
+         * Step 1. Поиск доступных привелегий.
+         */
+        $query = ("SELECT `permissions`.`id` AS `id`, `permission_name`, `permission_description`, 
+                    `group_name`, `group_description`, `group`.`id` AS `groupId`
+                    FROM `permissions`
+                    INNER JOIN `role_permission` ON `permissions`.`id` = `role_permission`.`permission_id`
+                    INNER JOIN `permission_groups` AS `group` ON `permissions`.`permission_group` = `group`.`id`
+                    WHERE `role_permission`.role_id = :roleId
+                    ORDER BY `groupId`");
+        $result = $this->_dbConnection->prepare($query);
+        $result->execute([
+            'roleId' => $roleId
+        ]);
+        $availablePermissions = [];
+        if ($result->rowCount() > 0){
+            while ($row = $result->fetch()){
+                $availablePermissions[$row['id']] = $row;
+            }
+        }
+        /**
+         * Step 2. Поиск всех првиелегий
+         */
+        $query = ("SELECT `permissions`.`id` AS `id`, `permission_name`, `permission_description`, 
+                    `group_name`, `group_description`, `group`.`id` AS `groupId` 
+                   FROM `permissions`
+                   INNER JOIN `permission_groups` AS `group` ON `permissions`.`permission_group` = `group`.`id`
+                   ORDER BY `groupId`");
+        $result = $this->_dbConnection->prepare($query);
+        $result->execute();
+        $allPermissions = [];
+        if ($result->rowCount() > 0){
+            while ($row = $result->fetch()){
+
+                $allPermissions[$row['id']] = $row;
+            }
+        }
+        /**
+         * Step 3. Сравнение и нахождение различий.
+         */
+        $differentPermissions = array_diff_key($allPermissions, $availablePermissions);
+        /**
+         * Step 4. Формирую массив нужного вида.
+         */
+        $permissions = [];
+        foreach ($differentPermissions as $key => $value){
+            if (empty($permissions[$value['group_description']])){
+                $permissions[$value['group_description']] = [$value['permission_name'] => $value['permission_description']];
+            }else{
+                $permissions[$value['group_description']] += [$value['permission_name'] => $value['permission_description']];
+            }
+        }
+        return $permissions;
+    }
+
+    /**
+     * Найти привелегии для текущей роли. Собранные по группам.
      *
      * @param int $roleId
      * @return array
@@ -36,9 +98,13 @@ class Permission
      */
     public function getByRole(? int $roleId) : array {
         $roleId = Sanitizer::sanitize($roleId);
-        $query = ("SELECT `permissions`.`id` as `id`, `permission_name`, `permission_description` FROM `permissions`
+        $query = ("SELECT `permissions`.`id` AS `id`, `permission_name`, `permission_description`, 
+                    `group_name`, `group_description`, `group`.`id` AS `groupId`
+                    FROM `permissions`
                     INNER JOIN `role_permission` ON `permissions`.`id` = `role_permission`.`permission_id`
-                    WHERE `role_permission`.role_id = :roleId");
+                    INNER JOIN `permission_groups` AS `group` ON `permissions`.`permission_group` = `group`.`id`
+                    WHERE `role_permission`.role_id = :roleId
+                    ORDER BY `groupId`");
         $result = $this->_dbConnection->prepare($query);
         $result->execute([
             'roleId' => $roleId
@@ -46,24 +112,7 @@ class Permission
         $permissions = [];
         if ($result->rowCount() > 0){
             while ($row = $result->fetch()){
-                $permissions[$row['permission_name']] = $row['permission_description'];
-            }
-        }
-        return $permissions;
-    }
-
-    /**
-     * Вернуть все привелегии
-     *
-     * @return array
-     */
-    public function getAll() : array {
-        $query = ("SELECT * FROM `permissions`");
-        $result = $this->_dbConnection->prepare($query);
-        $result->execute();
-        if ($result->rowCount() > 0){
-            while ($row = $result->fetch()){
-                $permissions[$row['permission_name']] = $row['permission_description'];
+                $permissions[$row['group_description']][$row['permission_name']] = $row['permission_description'];
             }
         }
         return $permissions;

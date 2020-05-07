@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Middleware;
 
-
 use Firebase\JWT\JWT;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;

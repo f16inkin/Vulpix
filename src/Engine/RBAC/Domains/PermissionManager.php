@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Domains;
 
-
 use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
-use Vulpix\Engine\Core\Foundation\Domain;
+use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
+use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
 /**
@@ -15,7 +15,7 @@ use Vulpix\Engine\Database\Connectors\IConnector;
  * Class PermissionManager
  * @package Vulpix\Engine\RBAC\Domains
  */
-class PermissionManager extends Domain
+class PermissionManager
 {
     private $_dbConnection;
 
@@ -24,9 +24,17 @@ class PermissionManager extends Domain
         $this->_dbConnection = $dbConnector::getConnection();
     }
 
-    public function findRolePermissionIDs( ? int $roleId, ? array $permissionIDs) : array {
-        $roleId = $this->sanitize($roleId);
-        $permissionIDs = $this->sanitize($permissionIDs);
+    /**
+     * Ищет соответсвующие записи в таблице role = permission.
+     *
+     * @param int|null $roleId
+     * @param array|null $permissionIDs
+     * @return array
+     * @throws WrongParamTypeException
+     */
+    public function findRolePermissionIDs(? int $roleId, ? array $permissionIDs) : array {
+        $roleId = Sanitizer::sanitize($roleId);
+        $permissionIDs = Sanitizer::sanitize($permissionIDs);
         $permissions = [];
         $permissionIDs = implode(', ', $permissionIDs);
         if ($permissionIDs !== ""){
@@ -43,7 +51,27 @@ class PermissionManager extends Domain
             }
         }
         return $permissions;
+    }
 
+    /**
+     * Вернуть все привелегии, собранные по группам.
+     *
+     * @return array
+     */
+    public function getAll() : array {
+        $query = ("SELECT `permissions`.`id` AS `id`, `permission_name`, `permission_description`, 
+                    `group_name`, `group_description`, `group`.`id` AS `groupId` 
+                   FROM `permissions`
+                   INNER JOIN `permission_groups` AS `group` ON `permissions`.`permission_group` = `group`.`id`
+                   ORDER BY `groupId`");
+        $result = $this->_dbConnection->prepare($query);
+        $result->execute();
+        if ($result->rowCount() > 0){
+            while ($row = $result->fetch()){
+                $permissions[$row['group_description']][$row['permission_name']] = $row['permission_description'];
+            }
+        }
+        return $permissions;
     }
 
     public function addPermissions(? int $roleId, ? array $permissionIDs) : ExecutionResponse {
@@ -60,9 +88,14 @@ class PermissionManager extends Domain
         return (new ExecutionResponse())->setBody($roleId)->setStatus(200);
     }
 
+    /**
+     * @param int|null $roleId
+     * @param array|null $permissionIDs
+     * @throws WrongParamTypeException
+     */
     public function deletePermissions(? int $roleId, ? array $permissionIDs) : void {
-        $roleId = $this->sanitize($roleId);
-        $permissionIDs = $this->sanitize($permissionIDs);
+        $roleId = Sanitizer::sanitize($roleId);
+        $permissionIDs = Sanitizer::sanitize($permissionIDs);
         $permissionIDs = implode(', ', $permissionIDs);
         $query = ("DELETE FROM `role_permission` WHERE `role_id` = :roleId AND `permission_id` IN ($permissionIDs)");
         $result = $this->_dbConnection->prepare($query);
