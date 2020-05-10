@@ -94,7 +94,7 @@ class Role implements \JsonSerializable
      * @param $permissions
      * @return $this
      */
-    public function setPermissions($permissions) : void
+    public function setPermissions($permissions) : Role
     {
         $this->_permissions = $permissions;
         return $this;
