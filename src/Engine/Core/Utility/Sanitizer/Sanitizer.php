@@ -5,10 +5,12 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\Core\Utility\Sanitizer;
 
 use Vulpix\Engine\Core\Utility\Assert\Assert;
-use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
 
 /**
- * Очищает от спецсимволов одномерные массивы, строки, числа.
+ * Санитизация параметров.
+ * !NOTE: добавить рекурсивный обход по массиву.
+ * Разработать обработку параметра WhiteList для того, чтобы можно было формировать нвоое регулярное выражение
+ * на основе символов из WhiteList.
  *
  * Class Sanitizer
  * @package Vulpix\Engine\Core\Utility\Sanitizer
@@ -17,10 +19,10 @@ class Sanitizer
 {
     /**
      * @param $structure
-     * @return array|string
-     * @throws WrongParamTypeException
+     * @param string $whiteList
+     * @return string|string[]|null
      */
-    public static function sanitize($structure){
+    public static function sanitize($structure, string $whiteList = ''){
         Assert::notEmpty($structure);
         Assert::notNull($structure);
         if (is_array($structure)){
@@ -38,8 +40,7 @@ class Sanitizer
 
     /**
      * @param $structure
-     * @return int
-     * @throws WrongParamTypeException
+     * @return int|string|string[]|null
      */
     public static function transformToInt($structure){
         Assert::notEmpty($structure);

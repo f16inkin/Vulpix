@@ -12,6 +12,10 @@ namespace Vulpix\Engine\Core\Utility\Assert;
  */
 class Assert
 {
+    /**
+     * @param $value
+     * @return bool
+     */
     public static function isEmpty($value) : bool
     {
         if (empty($value)){
@@ -20,6 +24,10 @@ class Assert
         throw new \InvalidArgumentException('Значение переданное аргументом не является пустым');
     }
 
+    /**
+     * @param $value
+     * @return bool
+     */
     public static function notEmpty($value) : bool
     {
         if (!empty($value)){
@@ -28,17 +36,25 @@ class Assert
         throw new \InvalidArgumentException('Значение переданное аргументом является пустым');
     }
 
+    /**
+     * @param $value
+     * @return bool
+     */
     public static function isNull($value) : bool
     {
-        if (isset($value)){
+        if (!isset($value)){
             return true;
         }
         throw new \InvalidArgumentException('Значение переданное аргументом не является null');
     }
 
+    /**
+     * @param $value
+     * @return bool
+     */
     public static function notNull($value) : bool
     {
-        if (!isset($value)){
+        if (isset($value)){
             return true;
         }
         throw new \InvalidArgumentException('Значение переданное аргументом является null');
