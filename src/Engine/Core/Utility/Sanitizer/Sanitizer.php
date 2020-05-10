@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\Core\Utility\Sanitizer;
 
+use Vulpix\Engine\Core\Utility\Assert\Assert;
 use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
 
 /**
@@ -16,23 +17,12 @@ class Sanitizer
 {
     /**
      * @param $structure
-     * @return mixed
-     * @throws WrongParamTypeException
-     */
-    private static function validate($structure){
-        if (!empty($structure) && isset($structure)){
-            return $structure;
-        }
-        throw new WrongParamTypeException('В метод переданы параметры с неверным типом. Либо null, empty');
-    }
-
-    /**
-     * @param $structure
      * @return array|string
      * @throws WrongParamTypeException
      */
     public static function sanitize($structure){
-        $structure = self::validate($structure);
+        Assert::notEmpty($structure);
+        Assert::notNull($structure);
         if (is_array($structure)){
             foreach ($structure as $key => $value) {
                 $convertedString = mb_convert_encoding($value, "utf-8");
@@ -52,7 +42,8 @@ class Sanitizer
      * @throws WrongParamTypeException
      */
     public static function transformToInt($structure){
-        $structure = self::validate($structure);
+        Assert::notEmpty($structure);
+        Assert::notNull($structure);
         if (is_array($structure)){
             foreach ($structure as $key => $value) {
                 $sanitized[$key] = (int) preg_replace ("/[^0-9]/","", $structure);
