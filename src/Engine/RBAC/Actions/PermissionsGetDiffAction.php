@@ -4,11 +4,13 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
+use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\RBAC\Domains\Permission;
-use Vulpix\Engine\RBAC\Domains\RBACExceptionsHandler;
+use Vulpix\Engine\RBAC\Domains\PermissionManager;
+use Vulpix\Engine\RBAC\Service\PermissionVerificator;
+use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\PermissionsGetDiffResponder;
 
 /**
@@ -19,17 +21,16 @@ use Vulpix\Engine\RBAC\Responders\PermissionsGetDiffResponder;
  */
 class PermissionsGetDiffAction implements RequestHandlerInterface
 {
-    private $_permission;
+    private const ACCESS_PERMISSION = 'PERMISSIONS_GET_DIFFERENT';
+
+    private $_manager;
     private $_responder;
 
-    /**
-     * PermissionsGetDiffAction constructor.
-     * @param Permission $permission
-     * @param PermissionsGetDiffResponder $responder
-     */
-    public function __construct(Permission $permission, PermissionsGetDiffResponder $responder)
+
+    public function __construct(PermissionManager $manager, PermissionsGetDiffResponder $responder)
     {
-        $this->_permission = $permission;
+        $this->_permission = 'PermissionsGetDifferent';
+        $this->_manager = $manager;
         $this->_responder = $responder;
     }
 
@@ -48,11 +49,14 @@ class PermissionsGetDiffAction implements RequestHandlerInterface
          * Инициализации и проверка привелегии для контроля доступа проходит в Middleware и Actions
          */
         try{
-            $getData = json_decode(file_get_contents("php://input"),true) ?: null;
-            $roleId = (int)$getData['roleId'] ?: null; //$request->getAttribute('getParams')['roleId'];
-            $differentPermissions = $this->_permission->getDifferentPermissions($roleId);
-            $response = $this->_responder->respond($request, $differentPermissions);
-            return $response;
+            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
+                $getData = json_decode(file_get_contents("php://input"),true) ?: null;
+                $roleId = (int)$getData['roleId'] ?: null; //$request->getAttribute('getParams')['roleId'];
+                $result = $this->_manager->getDifferentPermissions($roleId);
+                $response = $this->_responder->respond($request, $result);
+                return $response;
+            }
+            return new JsonResponse('Access denied. Вам запрещен просмотр привелегий системы.', 403);
         }catch (\Exception $e){
             return (new RBACExceptionsHandler())->handle($e);
         }
