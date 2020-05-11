@@ -110,9 +110,9 @@ class PermissionManager
      * @param array|null $permissionIDs
      * @return array
      */
-    public function findRolePermissionIDs(? int $roleId, ? array $permissionIDs) : array {
-        $roleId = Sanitizer::sanitize($roleId);
-        $permissionIDs = Sanitizer::sanitize($permissionIDs);
+    private function findRolePermissionIDs(? int $roleId, ? array $permissionIDs) : array {
+        $roleId = Sanitizer::transformToInt($roleId);
+        $permissionIDs = Sanitizer::transformToInt($permissionIDs);
         $permissions = [];
         $permissionIDs = implode(', ', $permissionIDs);
         if ($permissionIDs !== ""){
@@ -256,7 +256,11 @@ class PermissionManager
      * @return ResultContainer
      */
     public function addPermissions(? int $roleId, ? array $permissionIDs) : ResultContainer {
-        if (!empty($permissionIDs)){
+        $roleId = Sanitizer::transformToInt($roleId);
+        $addingPermissionsIDs = Sanitizer::transformToInt($permissionIDs);
+        $foundPermissionIDs = $this->findRolePermissionIDs($roleId, $addingPermissionsIDs);
+        $permissionIDs = array_diff($addingPermissionsIDs, $foundPermissionIDs);
+        if(!empty($permissionIDs)){
             $query = ("INSERT INTO `role_permission` (`role_id`, `permission_id`) VALUES ");
             foreach ($permissionIDs as $permissionId){
                 $query .= sprintf("(%s, %s),", $roleId, $permissionId);
@@ -264,7 +268,6 @@ class PermissionManager
             $query = rtrim($query, ',');
             $result = $this->_dbConnection->prepare($query);
             $result->execute();
-            return new ResultContainer($roleId, 201);
         }
         return new ResultContainer($roleId, 200);
     }
@@ -277,8 +280,8 @@ class PermissionManager
      * @return ResultContainer
      */
     public function deletePermissions(? int $roleId, ? array $permissionIDs) : ResultContainer {
-        $roleId = Sanitizer::sanitize($roleId);
-        $permissionIDs = Sanitizer::sanitize($permissionIDs);
+        $roleId = Sanitizer::transformToInt($roleId);
+        $permissionIDs = Sanitizer::transformToInt($permissionIDs);
         $permissionIDs = implode(', ', $permissionIDs);
         $query = ("DELETE FROM `role_permission` WHERE `role_id` = :roleId AND `permission_id` IN ($permissionIDs)");
         $result = $this->_dbConnection->prepare($query);

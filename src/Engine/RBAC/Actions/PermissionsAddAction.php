@@ -59,18 +59,10 @@ class PermissionsAddAction implements RequestHandlerInterface
                 $roleId = (int)$postData['roleId'] ?: null;
                 //Добавляемые привелегии
                 $addingPermissionsIDs = $postData['permissionIDs'];
-                //Найденные привелегии для текущей роли
-                $foundPermissionIDs = $this->_manager->findRolePermissionIDs($roleId, $addingPermissionsIDs);
-                //Те привелегии которые добавляются, которых нет в имеющихся
-                $permissionsIDs = array_diff($addingPermissionsIDs, $foundPermissionIDs);
-                /**
-                 * Вернет либо 201 либо 200 статус в результате выполнения. На клиенете будет проще различать по статусу
-                 * были ли добавлены привелегии, либо запрос прошел и добавляемые привелегии уже были у роли.
-                 */
-                $result = $this->_manager->addPermissions($roleId, $permissionsIDs);
+                $result = $this->_manager->addPermissions($roleId, $addingPermissionsIDs);
                 //Полная ифнормация по роли
                 $role = $this->_roleManager->get($result->getBody());
-                $permissions = $this->_manager->initPermissions($roleId, $this->_manager::GROUPED);
+                $permissions = $this->_manager->initPermissions($roleId);
                 //Роль с инициализированными привелегиями
                 $roleWithPermissions = $role->setPermissions($permissions);
                 return $this->_responder->respond($request, $result->setBody($roleWithPermissions));
