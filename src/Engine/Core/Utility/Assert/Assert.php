@@ -60,4 +60,28 @@ class Assert
         throw new \InvalidArgumentException('Значение переданное аргументом является null');
     }
 
+    /**
+     * @param $value
+     * @return bool
+     */
+    public static function isString($value) : bool
+    {
+        if(is_string($value)){
+            return true;
+        }
+        throw new \InvalidArgumentException('Значение переданное аргументом не является строкой');
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    public static function notString($value) : bool
+    {
+        if(!is_string($value)){
+            return true;
+        }
+        throw new \InvalidArgumentException('Значение переданное аргументом может быть строкой');
+    }
+
 }

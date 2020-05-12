@@ -1,16 +1,17 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Vulpix\Engine\Core\DataStructures\Entity;
 
 /**
- * Весь смысл класса в том чтобы передавать данные между слоями приложения по одной определенной структуре.
+ * Класс заворачивает в себя структуированный ответ. И служит для передачи данных из доменной модели в контроллеры.
+ * Далее сериализуется в JSON и отправляется клиенту.
  *
- * Class ResultContainer
+ * Class HttpResultContainer
  * @package Vulpix\Engine\Core\DataStructures\Entity
  */
-class ResultContainer
+class HttpResultContainer
 {
     private $_body;
     private int $_status;
@@ -18,7 +19,7 @@ class ResultContainer
     /**
      * Дефолтное состояние объекта 204 - без контента.
      *
-     * ResultContainer constructor.
+     * HttpResultContainer constructor.
      * @param null $_body
      * @param int $status
      */
@@ -39,7 +40,7 @@ class ResultContainer
     /**
      * @param null $body
      */
-    public function setBody($body) : ResultContainer
+    public function setBody($body) : HttpResultContainer
     {
         $this->_body = $body;
         return $this;
@@ -56,7 +57,7 @@ class ResultContainer
     /**
      * @param int $status
      */
-    public function setStatus(int $status) : ResultContainer
+    public function setStatus(int $status) : HttpResultContainer
     {
         $this->_status = $status;
         return $this;
