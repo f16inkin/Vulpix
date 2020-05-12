@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\AAIS\Domains;
+namespace Vulpix\Engine\AAIS\Service;
 
 use Laminas\Diactoros\Response\JsonResponse;
 use Vulpix\Engine\Core\Utility\ExceptionsHandler\ExceptionsHandler;
@@ -15,7 +15,6 @@ use Vulpix\Engine\Core\Utility\ExceptionsHandler\ExceptionsHandler;
  */
 class AAISExceptionsHandler extends ExceptionsHandler
 {
-
     /**
      * Обработка ошибки связанной с неверной подписью JWT.
      *
@@ -45,23 +44,14 @@ class AAISExceptionsHandler extends ExceptionsHandler
     }
 
     /**
-     * Обработка ошибки связанной с неверными $header, $payload в JWT.
+     * Данное исключение говорит о том, что был передан неверный токен.
      *
      * @param \Exception $e
      * @return JsonResponse
      */
-    private function handleWrongParamTypeException(\Exception $e) : JsonResponse {
-        return (new JsonResponse($e->getMessage(),400));
-    }
-
-    /**
-     * Обработка ошибки связанной с передачей empty, null параметров в метод.
-     *
-     * @param \Exception $e
-     * @return JsonResponse
-     */
-    private function handleWrongAccessTokenException(\Exception $e){
-        return (new JsonResponse($e->getMessage(),400));
+    private function handleUnexpectedTokenException(\Exception $e){
+        $response = new JsonResponse($e->getMessage(),401);
+        return $response->withHeader('Location', '/auth/doAuth');
     }
 
     /**
@@ -78,5 +68,4 @@ class AAISExceptionsHandler extends ExceptionsHandler
             return $this->unhandled($e);
         }
     }
-
 }

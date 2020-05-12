@@ -10,8 +10,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\Domains\JWTCreator;
-use Vulpix\Engine\AAIS\Domains\AAISExceptionsHandler;
+use Vulpix\Engine\AAIS\Service\JWTCreator;
+use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 
 /**
  * Авторизация - проверка прав пользователя на ДОСТУП к определенным ресурсам.

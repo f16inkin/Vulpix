@@ -4,11 +4,12 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Domains;
 
-
-use Vulpix\Engine\AAIS\Exceptions\WrongAccessTokenException;
-use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
-use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
-use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
+use Vulpix\Engine\AAIS\DataStructures\ValueObjects\AccessToken;
+use Vulpix\Engine\AAIS\DataStructures\ValueObjects\RefreshToken;
+use Vulpix\Engine\AAIS\Exceptions\UnexpectedTokenException;
+use Vulpix\Engine\AAIS\Service\JWTCreator;
+use Vulpix\Engine\AAIS\Service\RTCreator;
+use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
 /**
@@ -21,19 +22,19 @@ class Refresh
 {
     private $_dbConnection;
     private $_rtCreator;
-    private $_executionResponse;
+    private $_resultContainer;
 
     /**
      * Refresh constructor.
      * @param IConnector $_dbConnector
      * @param RTCreator $rtCreator
-     * @param ExecutionResponse $executionResponse
+     * @param HttpResultContainer $resultContainer
      */
-    public function __construct(IConnector $_dbConnector, RTCreator $rtCreator, ExecutionResponse $executionResponse)
+    public function __construct(IConnector $_dbConnector, RTCreator $rtCreator, HttpResultContainer $resultContainer)
     {
         $this->_dbConnection = $_dbConnector::getConnection();
         $this->_rtCreator = $rtCreator;
-        $this->_executionResponse = $executionResponse;
+        $this->_resultContainer = $resultContainer;
     }
 
     /**
@@ -45,11 +46,11 @@ class Refresh
      * @param array|null $accountDetails
      * @return bool
      */
-    private function validate(? string $oldToken, ? array $accountDetails) : bool {
+    private function validate(RefreshToken $oldToken, ? array $accountDetails) : bool {
         $query = ("SELECT * FROM `refresh_tokens` WHERE `token` = :oldToken AND `user_id` = :userId");
         $result = $this->_dbConnection->prepare($query);
         $result->execute([
-            'oldToken' => $oldToken,
+            'oldToken' => $oldToken->getValue(),
             'userId' => $accountDetails['userId']
         ]);
         if ($result->rowCount() > 0){
@@ -63,31 +64,24 @@ class Refresh
      *
      * @param string|null $accessToken
      * @return array
-     * @throws WrongAccessTokenException
-     * @throws WrongParamTypeException
+     * @throws UnexpectedTokenException
      */
-    private function getAccountDetails(? string $accessToken) : array {
-        if (!empty($accessToken) && isset($accessToken)){
-            [$header, $payload, $signature] = explode(".", $accessToken);
+    private function getAccountDetails(AccessToken $accessToken) : array {
+        [$header, $payload, $signature] = explode(".", $accessToken->getValue());
+        if (isset($payload)){
             $accountDetails = json_decode(base64_decode($payload))->user;
-            if (isset($accountDetails)){
-                return (array)$accountDetails;
-            }
-            throw new WrongAccessTokenException();
+            return (array)$accountDetails;
         }
-        throw new WrongParamTypeException('В метод переданы параметры с неверным типом. Либо null, empty');
+        throw new UnexpectedTokenException('Передан не верный jwtToken');
     }
 
     /**
-     * Генерация нового refresh токена.
-     *
-     * @param string|null $oldToken
-     * @param string|null $accessToken
-     * @return ExecutionResponse
-     * @throws WrongAccessTokenException
-     * @throws WrongParamTypeException
+     * Здесь парамтерами должны передаваться VO: RefreshToken и AccessToken.
+     * Сами VO уже включают валидацию и проверку вида по регулярному выражению например для RT.
+     * @throws UnexpectedTokenException
      */
-    public function refresh(? string $oldToken, ? string $accessToken) : ExecutionResponse{
+    public function refresh(RefreshToken $oldToken, AccessToken $accessToken) : HttpResultContainer
+    {
         /**
          * Я должен сделать проверку пришедшего refresh токена.
          * Если он совпадает с тем что хранится в базе, занчит можно выдавать новую пару токенов.
@@ -95,7 +89,6 @@ class Refresh
          * После повторной аутентификации выйдет нвоая пара токенов, рефрешь токен из которой можно будет без
          * проблем валидировать здесь спуся время окнчания аксес токена.
          */
-        $oldToken = Sanitizer::sanitize($oldToken);
         $accountDetails = $this->getAccountDetails($accessToken);
         if ($this->validate($oldToken, $accountDetails)){
             $tokens = [
@@ -103,14 +96,13 @@ class Refresh
                 'refreshToken' => $this->_rtCreator->create($accountDetails),
                 'expiresIn' => JWTCreator::getExpiresIn() - 60
             ];
-            return $this->_executionResponse->setBody($tokens)->setStatus(200);
+            return $this->_resultContainer->setBody($tokens)->setStatus(200);
         }
         /**
          * Токен может не пройти валидацию в двух случаях:
          * 1) Токен устарел
-         * 2) Не переданы пользовтаельские данные для идентификации токена
+         * 2) Не переданы пользовательские данные для идентификации токена
          */
-        return $this->_executionResponse->setBody('Данный токен не прошел валидацию')->setStatus(401);
+        return $this->_resultContainer->setBody('Данный токен не прошел валидацию')->setStatus(401);
     }
-
 }

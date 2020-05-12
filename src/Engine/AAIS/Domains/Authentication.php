@@ -4,9 +4,9 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Domains;
 
-
-use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
-use Vulpix\Engine\Core\Utility\Sanitizer\Exceptions\WrongParamTypeException;
+use Vulpix\Engine\AAIS\Service\JWTCreator;
+use Vulpix\Engine\AAIS\Service\RTCreator;
+use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
@@ -20,19 +20,19 @@ class Authentication
 {
     private $_dbConnector;
     private $_rtCreator;
-    private $_executionResponse;
+    private $_resultContainer;
 
     /**
      * Authentication constructor.
      * @param IConnector $dbConnector
      * @param RTCreator $rtCreator
-     * @param ExecutionResponse $executionResponse
+     * @param HttpResultContainer $resultContainer
      */
-    public function __construct(IConnector $dbConnector, RTCreator $rtCreator, ExecutionResponse $executionResponse)
+    public function __construct(IConnector $dbConnector, RTCreator $rtCreator, HttpResultContainer $resultContainer)
     {
         $this->_dbConnector = $dbConnector;
         $this->_rtCreator = $rtCreator;
-        $this->_executionResponse = $executionResponse;
+        $this->_resultContainer = $resultContainer;
     }
 
     /**
@@ -60,10 +60,9 @@ class Authentication
      *
      * @param string|null $userName
      * @param string|null $userPassword
-     * @return ExecutionResponse
-     * @throws WrongParamTypeException
+     * @return HttpResultContainer
      */
-    public function authenticate(? string $userName, ? string $userPassword) : ExecutionResponse {
+    public function authenticate(? string $userName, ? string $userPassword) : HttpResultContainer {
         /**
          * Санитизация нужна только для имени пользователя, так как только этот параметр используется в обращении к БД.
          */
@@ -80,11 +79,11 @@ class Authentication
                      */
                     'expiresIn' => JWTCreator::getExpiresIn() - 60
                 ];
-                return $this->_executionResponse->setBody($tokens)->setStatus(200);
+                return $this->_resultContainer->setBody($tokens)->setStatus(200);
             }
-            return $this->_executionResponse->setBody(['Forbidden' => 'Пароль не верен.'])->setStatus(403);
+            return $this->_resultContainer->setBody('Пароль не верен.')->setStatus(403);
         }
-        return $this->_executionResponse->setBody(['Forbidden' => 'Такой учетной записи не существует в системе'])->setStatus(403);
+        return $this->_resultContainer->setBody('Такой учетной записи не существует в системе')->setStatus(403);
     }
 
 }

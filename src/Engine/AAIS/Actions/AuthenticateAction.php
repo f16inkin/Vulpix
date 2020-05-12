@@ -8,7 +8,7 @@ namespace Vulpix\Engine\AAIS\Actions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\Domains\AAISExceptionsHandler;
+use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\AAIS\Domains\Authentication;
 use Vulpix\Engine\AAIS\Responders\AuthenticateResponder;
 

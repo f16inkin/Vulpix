@@ -2,8 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\AAIS\Domains;
-
+namespace Vulpix\Engine\AAIS\Service;
 
 use Firebase\JWT\JWT;
 

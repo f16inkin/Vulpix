@@ -4,11 +4,12 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Actions;
 
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\Domains\AAISExceptionsHandler;
+use Vulpix\Engine\AAIS\DataStructures\ValueObjects\AccessToken;
+use Vulpix\Engine\AAIS\DataStructures\ValueObjects\RefreshToken;
+use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\AAIS\Domains\Refresh;
 use Vulpix\Engine\AAIS\Responders\RefreshResponder;
 
@@ -41,7 +42,7 @@ class RefreshAction implements RequestHandlerInterface
     {
         try{
             $postData = json_decode(file_get_contents("php://input"),true);
-            $result = $this->_refresh->refresh($postData['refreshToken'], $postData['accessToken']);
+            $result = $this->_refresh->refresh(new RefreshToken($postData['refreshToken']), new AccessToken($postData['accessToken']));
             $response = $this->_responder->respond($request, $result);
             return $response;
         }catch (\Exception $e){

@@ -2,8 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\AAIS\Domains;
-
+namespace Vulpix\Engine\AAIS\Service;
 
 use Ramsey\Uuid\Uuid;
 use Vulpix\Engine\Database\Connectors\IConnector;
@@ -34,7 +33,8 @@ class RTCreator
      * @param array $accountDetails
      * @return bool
      */
-    private function insertToken(string $token, array $accountDetails) : bool {
+    private function insertToken(string $token, array $accountDetails) : void
+    {
         $query = ("INSERT INTO `refresh_tokens` (id, token, user_id, created, expires) VALUES (null, :token, :userId, :created, :expires )");
         $result = $this->_dbConnector::getConnection()->prepare($query);
         $result->execute([
@@ -43,10 +43,6 @@ class RTCreator
             'created' => time(),
             'expires' => time() + 60*60*24*30
         ]);
-        if ($result){
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -55,16 +51,13 @@ class RTCreator
      * @param array $accountDetails
      * @return bool
      */
-    private function deleteToken(array $accountDetails) : bool {
+    private function deleteToken(array $accountDetails) : void
+    {
         $query = ("DELETE FROM `refresh_tokens` WHERE `user_id` = :userId");
         $result = $this->_dbConnector::getConnection()->prepare($query);
         $result->execute([
             'userId' => $accountDetails['userId']
         ]);
-        if($result){
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -73,13 +66,12 @@ class RTCreator
      * @param array $accountDetails
      * @return string
      */
-    public function create(array $accountDetails) : string {
-        if ($this->deleteToken($accountDetails)){
-            $token = (Uuid::uuid4())->toString();
-            if ($this->insertToken($token, $accountDetails)){
-                return $token;
-            }
-        }
+    public function create(array $accountDetails) : string
+    {
+        $this->deleteToken($accountDetails);
+        $token = (Uuid::uuid4())->toString();
+        $this->insertToken($token, $accountDetails);
+        return $token;
     }
 
 }
