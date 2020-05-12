@@ -4,21 +4,31 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Middleware;
 
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\Database\Connectors\IConnector;
-use Vulpix\Engine\RBAC\Domains\RoleCollection;
+use Vulpix\Engine\RBAC\Domains\RoleManager;
 
+/**
+ * Class InitRolesMiddleware
+ * @package Vulpix\Engine\RBAC\Middleware
+ */
 class InitRolesMiddleware implements MiddlewareInterface
 {
     private $_dbConnector;
+    private $_manager;
 
-    public function __construct(IConnector $dbConnector)
+    /**
+     * InitRolesMiddleware constructor.
+     * @param IConnector $dbConnector
+     * @param RoleManager $manager
+     */
+    public function __construct(IConnector $dbConnector, RoleManager $manager)
     {
         $this->_dbConnector = $dbConnector;
+        $this->_manager = $manager;
     }
 
     /**
@@ -30,8 +40,8 @@ class InitRolesMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $userId = 1;
-        $roles = (new RoleCollection($this->_dbConnector))->initRoles($userId);
+        $userId = $request->getAttribute('User')['userId'];
+        $roles = $this->_manager->initRoles($userId);
         $request = $request->withAttribute('Roles', $roles);
         return $response = $handler->handle($request);
     }

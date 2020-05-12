@@ -4,31 +4,36 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
-
+use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\RBAC\Domains\RBACExceptionsHandler;
-use Vulpix\Engine\RBAC\Domains\Role;
+use Vulpix\Engine\RBAC\Domains\RoleManager;
+use Vulpix\Engine\RBAC\Service\PermissionVerificator;
+use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\RoleEditResponder;
 
 /**
+ * Редактирует роль.
+ *
  * Class RoleEditAction
  * @package Vulpix\Engine\RBAC\Actions
  */
 class RoleEditAction implements RequestHandlerInterface
 {
-    private $_role;
+    private const ACCESS_PERMISSION = 'RBAC_ROLE_EDIT';
+
+    private $_manager;
     private $_responder;
 
     /**
      * RoleEditAction constructor.
-     * @param Role $role
+     * @param RoleManager $manager
      * @param RoleEditResponder $responder
      */
-    public function __construct(Role $role, RoleEditResponder $responder)
+    public function __construct(RoleManager $manager, RoleEditResponder $responder)
     {
-        $this->_role = $role;
+        $this->_manager = $manager;
         $this->_responder = $responder;
     }
 
@@ -40,14 +45,16 @@ class RoleEditAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            $putData = json_decode(file_get_contents("php://input"),true);
-            $exec = $this->_role->edit($putData);
-            $role = $this->_role->get($exec->_body);
-            $response = $this->_responder->respond($request, $exec->setBody($role));
-            return $response;
+            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
+                $putData = json_decode(file_get_contents("php://input"),true);
+                $result= $this->_manager->edit($putData);
+                $role = $this->_manager->get($result->getBody());
+                $response = $this->_responder->respond($request, $result->setBody($role));
+                return $response;
+            }
+            return new JsonResponse('Access denied. Вам запрещено редактирвоать роли.', 403);
         }catch (\Exception $e){
             return (new RBACExceptionsHandler())->handle($e);
         }
-
     }
 }

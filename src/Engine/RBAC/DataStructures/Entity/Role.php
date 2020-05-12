@@ -4,8 +4,6 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\DataStructures\Entity;
 
-use Vulpix\Engine\RBAC\DataStructures\Collections\PermissionsCollection;
-
 /**
  * Сущность. Роль.
  *

@@ -4,38 +4,42 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
-
+use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
-use Vulpix\Engine\RBAC\Domains\PermissionCollection;
-use Vulpix\Engine\RBAC\Domains\RBACExceptionsHandler;
-use Vulpix\Engine\RBAC\Domains\Role;
+use Vulpix\Engine\Core\DataStructures\Entity\ResultContainer;
+use Vulpix\Engine\RBAC\Domains\PermissionManager;
+use Vulpix\Engine\RBAC\Domains\RoleManager;
+use Vulpix\Engine\RBAC\Service\PermissionVerificator;
+use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\RoleGetResponder;
 
 /**
+ * Получает информацию по выбранной роли.
+ *
  * Class RoleGetAction
  * @package Vulpix\Engine\RBAC\Actions
  */
 class RoleGetAction implements RequestHandlerInterface
 {
-    private $_role;
-    private $_permissions;
+    private const ACCESS_PERMISSION = 'RBAC_ROLE_GET';
+
+    private $_manager;
+    private $_permissionManager;
     private $_responder;
 
     /**
      * RoleGetAction constructor.
-     * @param Role $role
+     * @param RoleManager $manager
+     * @param PermissionManager $permissionManager
      * @param RoleGetResponder $responder
      */
-    public function __construct(Role $role, PermissionCollection $permissions, RoleGetResponder $responder)
+    public function __construct(RoleManager $manager, PermissionManager $permissionManager, RoleGetResponder $responder)
     {
-        $this->_role = $role;
-        $this->_permissions = $permissions;
+        $this->_manager = $manager;
+        $this->_permissionManager = $permissionManager;
         $this->_responder = $responder;
-
-
     }
 
     /**
@@ -46,11 +50,14 @@ class RoleGetAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            $roleId = (int)$request->getAttribute('id') ?: null;
-            $role = $this->_role->get($roleId);
-            $permissions = $this->_permissions->initPermissions($roleId);
-            $response = $this->_responder->respond($request, (new ExecutionResponse())->setBody($role->setPermissions($permissions))->setStatus(200));
-            return $response;
+            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
+                $roleId = (int)$request->getAttribute('id') ?: null;
+                $role = $this->_manager->get($roleId);
+                $permissions = $this->_permissionManager->initPermissions($role->getId(), $this->_permissionManager::GROUPED);
+                $response = $this->_responder->respond($request, new ResultContainer($role->setPermissions($permissions), 200));
+                return $response;
+            }
+            return new JsonResponse('Access denied. Вам запрещено просматривать роли.', 403);
         }catch (\Exception $e){
             return (new RBACExceptionsHandler())->handle($e);
         }

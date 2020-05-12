@@ -4,10 +4,10 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Responders;
 
-
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ServerRequestInterface;
+use Vulpix\Engine\Core\DataStructures\Entity\ResultContainer;
 use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
 
 /**
@@ -18,12 +18,11 @@ class RoleGetAllResponder
 {
     /**
      * @param ServerRequestInterface $request
-     * @param ExecutionResponse $payload
+     * @param ResultContainer $payload
      * @return Response
      */
-    public function respond(ServerRequestInterface $request, ExecutionResponse $payload): Response
+    public function respond(ServerRequestInterface $request, ResultContainer $payload): Response
     {
-        return $response = new JsonResponse($payload->_body, $payload->_status);
+        return new JsonResponse($payload->getBody(), $payload->getStatus());
     }
-
 }

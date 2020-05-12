@@ -4,31 +4,36 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
-
+use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\RBAC\Domains\RBACExceptionsHandler;
-use Vulpix\Engine\RBAC\Domains\Role;
+use Vulpix\Engine\RBAC\Domains\RoleManager;
+use Vulpix\Engine\RBAC\Service\PermissionVerificator;
+use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\RoleCreateResponder;
 
 /**
+ * Создать новую роль.
+ *
  * Class RoleCreateAction
  * @package Vulpix\Engine\RBAC\Actions
  */
 class RoleCreateAction implements RequestHandlerInterface
 {
-    private $_role;
+    private const ACCESS_PERMISSION = 'RBAC_ROLE_CREATE';
+
+    private $_manager;
     private $_responder;
 
     /**
      * RoleCreateAction constructor.
-     * @param Role $role
+     * @param RoleManager $manager
      * @param RoleCreateResponder $responder
      */
-    public function __construct(Role $role, RoleCreateResponder $responder)
+    public function __construct(RoleManager $manager, RoleCreateResponder $responder)
     {
-        $this->_role = $role;
+        $this->_manager = $manager;
         $this->_responder = $responder;
     }
 
@@ -40,11 +45,17 @@ class RoleCreateAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            $postData = json_decode(file_get_contents("php://input"),true) ?: null;
-            $exec = $this->_role->create($postData);
-            $role = $this->_role->get($exec->_body);
-            $response = $this->_responder->respond($request, $exec->setBody($role));
-            return $response;
+            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
+                $postData = json_decode(file_get_contents("php://input"),true) ?: null;
+                $result = $this->_manager->create($postData);
+                /**
+                 * Только что созданная роль и не должна содержать привелегий.
+                 */
+                $role = $this->_manager->get($result->getBody());
+                $response = $this->_responder->respond($request, $result->setBody($role));
+                return $response;
+            }
+            return new JsonResponse('Access denied. Вам запрещено создавать роли.', 403);
         }catch (\Exception $e){
             return (new RBACExceptionsHandler())->handle($e);
         }
