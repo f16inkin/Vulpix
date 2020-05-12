@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\RBAC\Domains;
+namespace Vulpix\Engine\RBAC\Service;
 
 use Laminas\Diactoros\Response\JsonResponse;
 use Vulpix\Engine\Core\Utility\ExceptionsHandler\ExceptionsHandler;
@@ -15,7 +15,6 @@ use Vulpix\Engine\Core\Utility\ExceptionsHandler\ExceptionsHandler;
  */
 class RBACExceptionsHandler extends ExceptionsHandler
 {
-
     /**
      * Подметод для обработки ошибок связанных с БД.
      * Может быть добавлено логирование. Пока что есть только вывод ошибки.
@@ -26,6 +25,10 @@ class RBACExceptionsHandler extends ExceptionsHandler
         return (new JsonResponse('Данная роль уже присутсвует в системе',500));
     }
 
+    /**
+     * @param \PDOException $e
+     * @return JsonResponse
+     */
     protected function handle_1064(\PDOException $e) : JsonResponse {
         return (new JsonResponse('На обработку переданы не верные аргументы',400));
     }
@@ -42,10 +45,6 @@ class RBACExceptionsHandler extends ExceptionsHandler
         return $this->$subMethod($pdoException);
     }
 
-    private function handleWrongParamsTypeException() : JsonResponse {
-        return (new JsonResponse('На обработку переданы не верные аргументы',400));
-    }
-
     /**
      * Фабричный метод для обработки всевозможных исключений брошенных в модуле RBAC.
      *
@@ -57,7 +56,7 @@ class RBACExceptionsHandler extends ExceptionsHandler
         if (method_exists($this, $method)){
             return $this->$method($e);
         }else{
-            return $this->unhandled();
+            return $this->unhandled($e);
         }
     }
 

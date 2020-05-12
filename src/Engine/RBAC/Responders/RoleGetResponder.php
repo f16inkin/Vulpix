@@ -7,8 +7,7 @@ namespace Vulpix\Engine\RBAC\Responders;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ServerRequestInterface;
-use Vulpix\Engine\Core\DataStructures\Entity\ResultContainer;
-use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
+use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 
 /**
  * Class RoleGetResponder
@@ -18,10 +17,10 @@ class RoleGetResponder
 {
     /**
      * @param ServerRequestInterface $request
-     * @param ResultContainer $payload
+     * @param HttpResultContainer $payload
      * @return Response
      */
-    public function respond(ServerRequestInterface $request, ResultContainer $payload): Response
+    public function respond(ServerRequestInterface $request, HttpResultContainer $payload): Response
     {
         if ($payload->getBody()->getId() === 0 ){
             return new JsonResponse('Роль не найдена на сервере.', 404);

@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\Core\DataStructures\Entity\ResultContainer;
+use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 use Vulpix\Engine\RBAC\Domains\PermissionManager;
 use Vulpix\Engine\RBAC\Domains\RoleManager;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
@@ -54,7 +54,7 @@ class RoleGetAction implements RequestHandlerInterface
                 $roleId = (int)$request->getAttribute('id') ?: null;
                 $role = $this->_manager->get($roleId);
                 $permissions = $this->_permissionManager->initPermissions($role->getId(), $this->_permissionManager::GROUPED);
-                $response = $this->_responder->respond($request, new ResultContainer($role->setPermissions($permissions), 200));
+                $response = $this->_responder->respond($request, new HttpResultContainer($role->setPermissions($permissions), 200));
                 return $response;
             }
             return new JsonResponse('Access denied. Вам запрещено просматривать роли.', 403);

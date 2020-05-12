@@ -7,8 +7,7 @@ namespace Vulpix\Engine\RBAC\Responders;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ServerRequestInterface;
-use Vulpix\Engine\Core\DataStructures\Entity\ResultContainer;
-use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
+use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 
 /**
  * Class RoleDeleteResponder
@@ -18,10 +17,10 @@ class RoleDeleteResponder
 {
     /**
      * @param ServerRequestInterface $request
-     * @param ResultContainer $payload
+     * @param HttpResultContainer $payload
      * @return Response
      */
-    public function respond(ServerRequestInterface $request, ResultContainer $payload): Response
+    public function respond(ServerRequestInterface $request, HttpResultContainer $payload): Response
     {
         return new JsonResponse($payload->getBody(), $payload->getStatus());
     }

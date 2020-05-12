@@ -4,8 +4,7 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Domains;
 
-use Vulpix\Engine\Core\DataStructures\Entity\ResultContainer;
-use Vulpix\Engine\Core\DataStructures\ExecutionResponse;
+use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 use Vulpix\Engine\Database\Connectors\IConnector;
 use Vulpix\Engine\RBAC\DataStructures\Collections\RolesCollection;
@@ -34,9 +33,9 @@ class RoleManager
      * Создает новую роль.
      *
      * @param array|null $roleDetails
-     * @return ResultContainer
+     * @return HttpResultContainer
      */
-    public function create(?array $roleDetails) : ResultContainer {
+    public function create(?array $roleDetails) : HttpResultContainer {
         /**
          * Если ничего не было передано или же провлена санитизация, будет брошено исключение
          */
@@ -52,9 +51,9 @@ class RoleManager
                 'roleName' => $roleDetails['roleName'],
                 'roleDescription' => $roleDetails['roleDescription']
             ]);
-            return new ResultContainer((int)$this->_dbConnector::getConnection()->lastInsertId(), 201);
+            return new HttpResultContainer((int)$this->_dbConnector::getConnection()->lastInsertId(), 201);
         }
-        return new ResultContainer($roleId, 200);
+        return new HttpResultContainer($roleId, 200);
     }
 
     /**
@@ -85,9 +84,9 @@ class RoleManager
      * Редактирует роль.
      *
      * @param array|null $roleDetails
-     * @return ResultContainer
+     * @return HttpResultContainer
      */
-    public function edit(?array $roleDetails) : ResultContainer  {
+    public function edit(?array $roleDetails) : HttpResultContainer  {
         $roleDetails = Sanitizer::sanitize($roleDetails);
         $query = ("UPDATE `roles` SET `role_name` = :roleName, `role_description` = :roleDescription
                 WHERE `id` = :roleId");
@@ -97,16 +96,16 @@ class RoleManager
             'roleName' => $roleDetails['roleName'],
             'roleDescription' => $roleDetails['roleDescription']
         ]);
-        return new ResultContainer((int)$roleDetails['roleId'], 200);
+        return new HttpResultContainer((int)$roleDetails['roleId'], 200);
     }
 
     /**
      * Удаляет роль / роли по заданным ID
      *
      * @param array|null $roleIDs
-     * @return ResultContainer
+     * @return HttpResultContainer
      */
-    public function delete(?array $roleIDs) : ResultContainer {
+    public function delete(?array $roleIDs) : HttpResultContainer {
         /**
          * Зачистить массив
          */
@@ -118,24 +117,24 @@ class RoleManager
         $query = ("DELETE FROM `roles` WHERE `id` IN ($roleIDs)");
         $result = $this->_dbConnector::getConnection()->prepare($query);
         $result->execute();
-        return new ResultContainer;
+        return new HttpResultContainer;
     }
 
     /**
      * Получает список всех ролей системы.
      *
-     * @return ResultContainer
+     * @return HttpResultContainer
      */
-    public function getAll() : ResultContainer
+    public function getAll() : HttpResultContainer
     {
         $query = ("SELECT * FROM `roles`");
         $result = $this->_dbConnector::getConnection()->prepare($query);
         $result->execute();
         if ($result->rowCount() > 0){
             $roles = $result->fetchAll();
-            return new ResultContainer($roles, 200);
+            return new HttpResultContainer($roles, 200);
         }
-        return new ResultContainer('Ролей в системе не найдено', 204);
+        return new HttpResultContainer('Ролей в системе не найдено', 204);
     }
 
     /**

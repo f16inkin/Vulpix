@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Domains;
 
-use Vulpix\Engine\Core\DataStructures\Entity\ResultContainer;
+use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 use Vulpix\Engine\Database\Connectors\IConnector;
 use Vulpix\Engine\RBAC\DataStructures\Collections\PermissionsCollection;
@@ -135,9 +135,9 @@ class PermissionManager
      * Получить привелегии которые не принадлежат выбранной роли.
      *
      * @param int|null $roleId
-     * @return ResultContainer
+     * @return HttpResultContainer
      */
-    public function getDifferentPermissions(? int $roleId) : ResultContainer {
+    public function getDifferentPermissions(? int $roleId) : HttpResultContainer {
         $roleId = Sanitizer::transformToInt($roleId);
         /**
          * Step 1. Поиск доступных привелегий.
@@ -201,18 +201,18 @@ class PermissionManager
                     $collections[$group]->offsetSet($name, $permission);
                 }
             }
-            return new ResultContainer($collections, 200);
+            return new HttpResultContainer($collections, 200);
         }
-        return new ResultContainer();
+        return new HttpResultContainer();
     }
 
     /**
      * Получить все зарегистрированные в системе привелегии.
      * Привелегии объединены по группам.
      *
-     * @return ResultContainer
+     * @return HttpResultContainer
      */
-    public function getAllPermissions() : ResultContainer{
+    public function getAllPermissions() : HttpResultContainer{
         $query = ("SELECT `permissions`.`id` AS `id`, `permission_name`, `permission_description`, 
                     `group_name`, `group_description`, `group`.`id` AS `groupId` 
                    FROM `permissions`
@@ -239,13 +239,13 @@ class PermissionManager
                 }
                 $permissions[$row['group_description']][$row['permission_name']] = $row['permission_description'];
             }
-            return new ResultContainer($collections, 200);
+            return new HttpResultContainer($collections, 200);
         }
         /**
          * Ресурс был найден, значит не 404.
          * Не было найдено данных для отображения, значит 204.
          */
-        return new ResultContainer();
+        return new HttpResultContainer();
     }
 
     /**
@@ -253,9 +253,9 @@ class PermissionManager
      *
      * @param int|null $roleId
      * @param array|null $permissionIDs
-     * @return ResultContainer
+     * @return HttpResultContainer
      */
-    public function addPermissions(? int $roleId, ? array $permissionIDs) : ResultContainer {
+    public function addPermissions(? int $roleId, ? array $permissionIDs) : HttpResultContainer {
         $roleId = Sanitizer::transformToInt($roleId);
         $addingPermissionsIDs = Sanitizer::transformToInt($permissionIDs);
         $foundPermissionIDs = $this->findRolePermissionIDs($roleId, $addingPermissionsIDs);
@@ -269,7 +269,7 @@ class PermissionManager
             $result = $this->_dbConnection->prepare($query);
             $result->execute();
         }
-        return new ResultContainer($roleId, 200);
+        return new HttpResultContainer($roleId, 200);
     }
 
     /**
@@ -277,9 +277,9 @@ class PermissionManager
      *
      * @param int|null $roleId
      * @param array|null $permissionIDs
-     * @return ResultContainer
+     * @return HttpResultContainer
      */
-    public function deletePermissions(? int $roleId, ? array $permissionIDs) : ResultContainer {
+    public function deletePermissions(? int $roleId, ? array $permissionIDs) : HttpResultContainer {
         $roleId = Sanitizer::transformToInt($roleId);
         $permissionIDs = Sanitizer::transformToInt($permissionIDs);
         $permissionIDs = implode(', ', $permissionIDs);
@@ -295,7 +295,7 @@ class PermissionManager
         /**
          * 204 - No Content
          */
-        return new ResultContainer();
+        return new HttpResultContainer();
     }
 
     /**
