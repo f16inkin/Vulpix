@@ -5,8 +5,11 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\AAIS\Service;
 
 use Firebase\JWT\JWT;
+use Vulpix\Engine\AAIS\Domains\Accounts\Account;
 
 /**
+ * Service.
+ *
  * Класс декоратор создающий JWT.
  *
  * Class JWTCreator
@@ -34,10 +37,10 @@ class JWTCreator
      * @param array $accountDetails
      * @return array
      */
-    private static function preparePayload(array $accountDetails) : array {
+    private static function preparePayload(Account $account) : array {
         $payload = self::loadConfigs()['payload'];
-        $payload['user']['userName'] = $accountDetails['userName'];
-        $payload['user']['userId'] = $accountDetails['userId'];
+        $payload['user']['userName'] = $account->getUserName();
+        $payload['user']['userId'] = $account->getId();
         return $payload;
     }
 
@@ -67,8 +70,8 @@ class JWTCreator
      * @param array $accountDetails
      * @return string
      */
-    public static function create(array $accountDetails) : string {
-        $jwtPayload = self::preparePayload($accountDetails);
+    public static function create(Account $account) : string {
+        $jwtPayload = self::preparePayload($account);
         $secretKey = self::getSecretKey();
         return JWT::encode($jwtPayload, $secretKey);
     }

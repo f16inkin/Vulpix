@@ -7,10 +7,10 @@ namespace Vulpix\Engine\AAIS\Actions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\DataStructures\ValueObjects\AccessToken;
-use Vulpix\Engine\AAIS\DataStructures\ValueObjects\RefreshToken;
+use Vulpix\Engine\AAIS\Domains\Tokens\AccessToken;
+use Vulpix\Engine\AAIS\Domains\Tokens\RefreshToken;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
-use Vulpix\Engine\AAIS\Domains\Refresh;
+use Vulpix\Engine\AAIS\Domains\Refresh\Refresh;
 use Vulpix\Engine\AAIS\Responders\RefreshResponder;
 
 /**

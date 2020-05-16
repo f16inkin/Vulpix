@@ -2,15 +2,13 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\AAIS\Exceptions;
+namespace Vulpix\Engine\AAIS\Domains\Tokens;
 
 use Throwable;
 
 /**
- * Бросать в случае неверного Access токена.
- *
  * Class UnexpectedTokenException
- * @package Vulpix\Engine\AAIS\Exceptions
+ * @package Vulpix\Engine\AAIS\Domains\Tokens
  */
 class UnexpectedTokenException extends \Exception
 {
@@ -24,5 +22,4 @@ class UnexpectedTokenException extends \Exception
     {
         parent::__construct($message, $code, $previous);
     }
-
 }

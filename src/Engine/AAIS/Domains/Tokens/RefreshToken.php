@@ -2,21 +2,22 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\AAIS\DataStructures\ValueObjects;
+namespace Vulpix\Engine\AAIS\Domains\Tokens;
 
 use Vulpix\Engine\Core\Utility\Assert\Assert;
 
 /**
- * VO - для Access токена.
- * Class AccessToken
- * @package Vulpix\Engine\AAIS\DataStructures\ValueObjects
+ * Value Object.
+ *
+ * Class RefreshToken
+ * @package Vulpix\Engine\AAIS\Domains\Tokens
  */
-class AccessToken
+class RefreshToken
 {
     private string $_value;
 
     /**
-     * AccessToken constructor.
+     * RefreshToken constructor.
      * @param $value
      */
     public function __construct($value)
@@ -27,11 +28,10 @@ class AccessToken
     }
 
     /**
-     * @return string
+     * @return mixed
      */
-    public function getValue(): string
+    public function getValue()
     {
         return $this->_value;
     }
-
 }

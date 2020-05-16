@@ -4,12 +4,11 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Actions;
 
-
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
-use Vulpix\Engine\AAIS\Domains\Authentication;
+use Vulpix\Engine\AAIS\Domains\Authentication\Authentication;
 use Vulpix\Engine\AAIS\Responders\AuthenticateResponder;
 
 /**

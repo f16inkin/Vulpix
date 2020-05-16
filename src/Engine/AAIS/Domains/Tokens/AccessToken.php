@@ -1,23 +1,23 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
-namespace Vulpix\Engine\AAIS\DataStructures\ValueObjects;
+namespace Vulpix\Engine\AAIS\Domains\Tokens;
 
 use Vulpix\Engine\Core\Utility\Assert\Assert;
 
 /**
- * VO - для рефреш токена.
+ * Value Object.
  *
- * Class RefreshToken
- * @package Vulpix\Engine\AAIS\DataStructures\ValueObjects
+ * Class AccessToken
+ * @package Vulpix\Engine\AAIS\Domains\Tokens
  */
-class RefreshToken
+class AccessToken
 {
     private string $_value;
 
     /**
-     * RefreshToken constructor.
+     * AccessToken constructor.
      * @param $value
      */
     public function __construct($value)
@@ -28,11 +28,10 @@ class RefreshToken
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getValue()
+    public function getValue(): string
     {
         return $this->_value;
     }
-
 }

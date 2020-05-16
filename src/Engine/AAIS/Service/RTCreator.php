@@ -5,9 +5,12 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\AAIS\Service;
 
 use Ramsey\Uuid\Uuid;
+use Vulpix\Engine\AAIS\Domains\Accounts\Account;
 use Vulpix\Engine\Database\Connectors\IConnector;
 
 /**
+ * Service.
+ *
  * Класс декоратор над Ramsey/UUid. Создает Uuid4 Refresh Token.
  *
  * Class RTCreator
@@ -33,13 +36,13 @@ class RTCreator
      * @param array $accountDetails
      * @return bool
      */
-    private function insertToken(string $token, array $accountDetails) : void
+    private function insertToken(string $token, Account $account) : void
     {
         $query = ("INSERT INTO `refresh_tokens` (id, token, user_id, created, expires) VALUES (null, :token, :userId, :created, :expires )");
         $result = $this->_dbConnector::getConnection()->prepare($query);
         $result->execute([
             'token' => $token,
-            'userId' => $accountDetails['userId'],
+            'userId' => $account->getId(),
             'created' => time(),
             'expires' => time() + 60*60*24*30
         ]);
@@ -51,12 +54,12 @@ class RTCreator
      * @param array $accountDetails
      * @return bool
      */
-    private function deleteToken(array $accountDetails) : void
+    private function deleteToken(Account $account) : void
     {
         $query = ("DELETE FROM `refresh_tokens` WHERE `user_id` = :userId");
         $result = $this->_dbConnector::getConnection()->prepare($query);
         $result->execute([
-            'userId' => $accountDetails['userId']
+            'userId' => $account->getId()
         ]);
     }
 
@@ -66,11 +69,11 @@ class RTCreator
      * @param array $accountDetails
      * @return string
      */
-    public function create(array $accountDetails) : string
+    public function create(Account $account) : string
     {
-        $this->deleteToken($accountDetails);
+        $this->deleteToken($account);
         $token = (Uuid::uuid4())->toString();
-        $this->insertToken($token, $accountDetails);
+        $this->insertToken($token, $account);
         return $token;
     }
 

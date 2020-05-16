@@ -2,11 +2,12 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\AAIS\Domains;
+namespace Vulpix\Engine\AAIS\Domains\Refresh;
 
-use Vulpix\Engine\AAIS\DataStructures\ValueObjects\AccessToken;
-use Vulpix\Engine\AAIS\DataStructures\ValueObjects\RefreshToken;
-use Vulpix\Engine\AAIS\Exceptions\UnexpectedTokenException;
+use Vulpix\Engine\AAIS\Domains\Accounts\Account;
+use Vulpix\Engine\AAIS\Domains\Tokens\AccessToken;
+use Vulpix\Engine\AAIS\Domains\Tokens\RefreshToken;
+use Vulpix\Engine\AAIS\Domains\Tokens\UnexpectedTokenException;
 use Vulpix\Engine\AAIS\Service\JWTCreator;
 use Vulpix\Engine\AAIS\Service\RTCreator;
 use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
@@ -46,12 +47,12 @@ class Refresh
      * @param array|null $accountDetails
      * @return bool
      */
-    private function validate(RefreshToken $oldToken, ? array $accountDetails) : bool {
+    private function validate(RefreshToken $oldToken, Account $account) : bool {
         $query = ("SELECT * FROM `refresh_tokens` WHERE `token` = :oldToken AND `user_id` = :userId");
         $result = $this->_dbConnection->prepare($query);
         $result->execute([
             'oldToken' => $oldToken->getValue(),
-            'userId' => $accountDetails['userId']
+            'userId' => $account->getId()
         ]);
         if ($result->rowCount() > 0){
             return true;
@@ -66,11 +67,11 @@ class Refresh
      * @return array
      * @throws UnexpectedTokenException
      */
-    private function getAccountDetails(AccessToken $accessToken) : array {
+    private function getAccount(AccessToken $accessToken) : Account {
         [$header, $payload, $signature] = explode(".", $accessToken->getValue());
         if (isset($payload)){
             $accountDetails = json_decode(base64_decode($payload))->user;
-            return (array)$accountDetails;
+            return new Account($accountDetails->userId, $accountDetails->userName);
         }
         throw new UnexpectedTokenException('Передан не верный jwtToken');
     }
@@ -89,11 +90,11 @@ class Refresh
          * После повторной аутентификации выйдет нвоая пара токенов, рефрешь токен из которой можно будет без
          * проблем валидировать здесь спуся время окнчания аксес токена.
          */
-        $accountDetails = $this->getAccountDetails($accessToken);
-        if ($this->validate($oldToken, $accountDetails)){
+        $account = $this->getAccount($accessToken);
+        if ($this->validate($oldToken, $account)){
             $tokens = [
-                'accessToken' => JWTCreator::create($accountDetails),
-                'refreshToken' => $this->_rtCreator->create($accountDetails),
+                'accessToken' => JWTCreator::create($account),
+                'refreshToken' => $this->_rtCreator->create($account),
                 'expiresIn' => JWTCreator::getExpiresIn() - 60
             ];
             return $this->_resultContainer->setBody($tokens)->setStatus(200);
