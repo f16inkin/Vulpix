@@ -5,6 +5,8 @@ declare(strict_types = 1);
 namespace Vulpix\Engine\Core\DataStructures\Entity;
 
 /**
+ * Data Transfer Object.
+ *
  * Класс заворачивает в себя структуированный ответ. И служит для передачи данных из доменной модели в контроллеры.
  * Далее сериализуется в JSON и отправляется клиенту.
  *
