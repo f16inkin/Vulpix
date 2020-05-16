@@ -56,6 +56,10 @@ abstract class ExceptionsHandler
         return (new JsonResponse($e->getMessage(),500));
     }
 
+    protected function handle_1406(\PDOException $e) : JsonResponse {
+        return (new JsonResponse($e->getMessage(),500));
+    }
+
     /**
      * Фабричный метод для всех обработок ошибок связанных с PDO.
      *

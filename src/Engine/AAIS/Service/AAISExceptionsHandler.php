@@ -8,6 +8,8 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Vulpix\Engine\Core\Utility\ExceptionsHandler\ExceptionsHandler;
 
 /**
+ * Service.
+ *
  * Расширяет возможности по обработке исключений брошенных Firebase\JWT.
  *
  * Class AAISExceptionsHandler
