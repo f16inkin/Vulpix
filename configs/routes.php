@@ -12,6 +12,9 @@ $app->get('card.get', '/api/v1/patient-cards/{id}', \Vulpix\Application\PatientC
 $app->post('authenticate', '/auth/doAuth', \Vulpix\Engine\AAIS\Actions\AuthenticateAction::class);
 $app->post('refresh', '/auth/doRefresh', \Vulpix\Engine\AAIS\Actions\RefreshAction::class);
 
+#AAIS - Accounts
+$app->post('account.create', '/api/v1/accounts', \Vulpix\Engine\AAIS\Actions\AccountCreateAction::class);
+
 #RBAC - Permissions
 $app->get('permissions.get.different', '/api/v1/permissions/different', \Vulpix\Engine\RBAC\Actions\PermissionsGetDiffAction::class);
 $app->get('permissions.get.all', '/api/v1/permissions', \Vulpix\Engine\RBAC\Actions\PermissionsGetAction::class);
