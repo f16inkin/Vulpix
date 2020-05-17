@@ -9,27 +9,27 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
-use Vulpix\Engine\AAIS\Responders\AccountCreateResponder;
+use Vulpix\Engine\AAIS\Responders\AccountDeleteResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 
 /**
- * Class AccountCreateAction
+ * Class AccountDeleteAction
  * @package Vulpix\Engine\AAIS\Actions
  */
-class AccountCreateAction implements RequestHandlerInterface
+class AccountDeleteAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_CREATE';
+    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_DELETE';
 
     private AccountRepository $_repository;
-    private AccountCreateResponder $_responder;
+    private AccountDeleteResponder $_responder;
 
     /**
-     * AccountCreateAction constructor.
+     * AccountDeleteAction constructor.
      * @param AccountRepository $repository
-     * @param AccountCreateResponder $responder
+     * @param AccountDeleteResponder $responder
      */
-    public function __construct(AccountRepository $repository, AccountCreateResponder $responder)
+    public function __construct(AccountRepository $repository, AccountDeleteResponder $responder)
     {
         $this->_repository = $repository;
         $this->_responder = $responder;
@@ -43,14 +43,14 @@ class AccountCreateAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $postData = json_decode(file_get_contents("php://input"),true) ?: null;
-                $result = $this->_repository->create($postData);
-                $account = $this->_repository->get($result->getBody());
-                $response = $this->_responder->respond($request, $result->setBody($account));
+            if(PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
+                $deleteData = json_decode(file_get_contents("php://input"),true) ?: null;
+                $accountIDs = $deleteData['accountIDs'];
+                $result = $this->_repository->delete($accountIDs);
+                $response = $this->_responder->respond($request, $result);
                 return $response;
             }
-            return new JsonResponse('Access denied. Вам запрещено регистрировать новых пользователей.', 403);
+            return new JsonResponse('Access denied. Вам запрещено удалять аккаунты пользователей.', 403);
         }catch (\Exception $e){
             return (new AAISExceptionsHandler())->handle($e);
         }

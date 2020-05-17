@@ -9,27 +9,27 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
-use Vulpix\Engine\AAIS\Responders\AccountCreateResponder;
+use Vulpix\Engine\AAIS\Responders\AccountEditResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 
 /**
- * Class AccountCreateAction
+ * Class AccountEditAction
  * @package Vulpix\Engine\AAIS\Actions
  */
-class AccountCreateAction implements RequestHandlerInterface
+class AccountEditAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_CREATE';
+    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_EDIT';
 
     private AccountRepository $_repository;
-    private AccountCreateResponder $_responder;
+    private AccountEditResponder $_responder;
 
     /**
-     * AccountCreateAction constructor.
+     * AccountEditAction constructor.
      * @param AccountRepository $repository
-     * @param AccountCreateResponder $responder
+     * @param AccountEditResponder $responder
      */
-    public function __construct(AccountRepository $repository, AccountCreateResponder $responder)
+    public function __construct(AccountRepository $repository, AccountEditResponder $responder)
     {
         $this->_repository = $repository;
         $this->_responder = $responder;
@@ -44,13 +44,13 @@ class AccountCreateAction implements RequestHandlerInterface
     {
         try{
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $postData = json_decode(file_get_contents("php://input"),true) ?: null;
-                $result = $this->_repository->create($postData);
+                $putData = json_decode(file_get_contents("php://input"),true);
+                $result = $this->_repository->edit($putData);
                 $account = $this->_repository->get($result->getBody());
                 $response = $this->_responder->respond($request, $result->setBody($account));
                 return $response;
             }
-            return new JsonResponse('Access denied. Вам запрещено регистрировать новых пользователей.', 403);
+            return new JsonResponse('Access denied. Вам запрещено редактировать учетную запись.', 403);
         }catch (\Exception $e){
             return (new AAISExceptionsHandler())->handle($e);
         }
