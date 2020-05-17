@@ -9,28 +9,27 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
-use Vulpix\Engine\AAIS\Responders\AccountGetResponder;
+use Vulpix\Engine\AAIS\Responders\AccountPasswordResetResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
-use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 
 /**
- * Class AccountGetAction
+ * Class AccountPasswordResetAction
  * @package Vulpix\Engine\AAIS\Actions
  */
-class AccountGetAction implements RequestHandlerInterface
+class AccountPasswordResetAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_GET';
+    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_PASSWORD_RESET';
 
     private AccountRepository $_repository;
-    private AccountGetResponder $_responder;
+    private AccountPasswordResetResponder $_responder;
 
     /**
-     * AccountGetAction constructor.
+     * AccountPasswordResetAction constructor.
      * @param AccountRepository $repository
-     * @param AccountGetResponder $responder
+     * @param AccountPasswordResetResponder $responder
      */
-    public function __construct(AccountRepository $repository, AccountGetResponder $responder)
+    public function __construct(AccountRepository $repository, AccountPasswordResetResponder $responder)
     {
         $this->_repository = $repository;
         $this->_responder = $responder;
@@ -45,12 +44,12 @@ class AccountGetAction implements RequestHandlerInterface
     {
         try{
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $accountId = (int)$request->getAttribute('id') ?: null;
-                $account = $this->_repository->getById($accountId);
-                $response = $this->_responder->respond($request, new HttpResultContainer($account, 200));
+                $putData = json_decode(file_get_contents("php://input"),true);
+                $result = $this->_repository->resetPassword($putData);
+                $response = $this->_responder->respond($request, $result);
                 return $response;
             }
-            return new JsonResponse('Access denied. Вам запрещено просматривать учетные записи.', 403);
+            return new JsonResponse('Access denied. Вам запрещено сбрасывать пароли учетных записей.', 403);
         }catch (\Exception $e){
             return (new AAISExceptionsHandler())->handle($e);
         }

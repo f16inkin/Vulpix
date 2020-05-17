@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Engine\AAIS\DataStructures\ValueObjects;
 
-use Vulpix\Engine\AAIS\DataStructures\ValueObjects\RefreshToken;
+use Vulpix\Engine\AAIS\Domains\Tokens\RefreshToken;
 use PHPUnit\Framework\TestCase;
 
 class RefreshTokenTest extends TestCase

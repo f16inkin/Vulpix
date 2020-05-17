@@ -2,11 +2,10 @@
 
 namespace Engine\AAIS\Domains;
 
-use Vulpix\Engine\AAIS\Domains\Authentication;
+use Vulpix\Engine\AAIS\Domains\Authentication\Authentication;
 use PHPUnit\Framework\TestCase;
 use Vulpix\Engine\AAIS\Service\RTCreator;
 use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
-use Vulpix\Engine\Database\Connectors\IConnector;
 use Vulpix\Engine\Database\Connectors\MySQLConnector;
 
 class AuthenticationTest extends TestCase

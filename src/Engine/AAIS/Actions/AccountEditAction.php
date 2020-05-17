@@ -45,8 +45,8 @@ class AccountEditAction implements RequestHandlerInterface
         try{
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
                 $putData = json_decode(file_get_contents("php://input"),true);
-                $result = $this->_repository->edit($putData);
-                $account = $this->_repository->get($result->getBody());
+                $result = $this->_repository->editAccount($putData);
+                $account = $this->_repository->getById($result->getBody());
                 $response = $this->_responder->respond($request, $result->setBody($account));
                 return $response;
             }

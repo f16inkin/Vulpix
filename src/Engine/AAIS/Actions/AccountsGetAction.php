@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Vulpix\Engine\AAIS\Actions;
 
@@ -9,28 +9,27 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
-use Vulpix\Engine\AAIS\Responders\AccountGetResponder;
+use Vulpix\Engine\AAIS\Responders\AccountsGetResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
-use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 
 /**
- * Class AccountGetAction
+ * Class AccountsGetAction
  * @package Vulpix\Engine\AAIS\Actions
  */
-class AccountGetAction implements RequestHandlerInterface
+class AccountsGetAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_GET';
+    private const ACCESS_PERMISSION = 'AAIS_ACCOUNTS_GET';
 
     private AccountRepository $_repository;
-    private AccountGetResponder $_responder;
+    private AccountsGetResponder $_responder;
 
     /**
-     * AccountGetAction constructor.
+     * AccountsGetAction constructor.
      * @param AccountRepository $repository
-     * @param AccountGetResponder $responder
+     * @param AccountsGetResponder $responder
      */
-    public function __construct(AccountRepository $repository, AccountGetResponder $responder)
+    public function __construct(AccountRepository $repository, AccountsGetResponder $responder)
     {
         $this->_repository = $repository;
         $this->_responder = $responder;
@@ -45,12 +44,12 @@ class AccountGetAction implements RequestHandlerInterface
     {
         try{
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $accountId = (int)$request->getAttribute('id') ?: null;
-                $account = $this->_repository->getById($accountId);
-                $response = $this->_responder->respond($request, new HttpResultContainer($account, 200));
+                $getData = json_decode(file_get_contents("php://input"),true) ?: null;
+                $result = $this->_repository->getPartly($getData);
+                $response = $this->_responder->respond($request, $result);
                 return $response;
             }
-            return new JsonResponse('Access denied. Вам запрещено просматривать учетные записи.', 403);
+            return new JsonResponse('Access denied. Вам запрещено просматривать список учетных записей пользователей.', 403);
         }catch (\Exception $e){
             return (new AAISExceptionsHandler())->handle($e);
         }

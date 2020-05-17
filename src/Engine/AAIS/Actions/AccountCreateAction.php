@@ -46,7 +46,7 @@ class AccountCreateAction implements RequestHandlerInterface
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
                 $postData = json_decode(file_get_contents("php://input"),true) ?: null;
                 $result = $this->_repository->create($postData);
-                $account = $this->_repository->get($result->getBody());
+                $account = $this->_repository->getById($result->getBody());
                 $response = $this->_responder->respond($request, $result->setBody($account));
                 return $response;
             }

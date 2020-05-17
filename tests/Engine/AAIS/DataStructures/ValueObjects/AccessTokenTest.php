@@ -5,7 +5,7 @@ declare(strict_types = 1);
 namespace Engine\AAIS\DataStructures\ValueObjects;
 
 use PHPUnit\Framework\TestCase;
-use Vulpix\Engine\AAIS\DataStructures\ValueObjects\AccessToken;
+use Vulpix\Engine\AAIS\Domains\Tokens\AccessToken;
 
 class AccessTokenTest extends TestCase
 {

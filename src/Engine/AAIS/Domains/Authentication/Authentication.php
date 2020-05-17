@@ -45,7 +45,7 @@ class Authentication
      * @return HttpResultContainer
      */
     public function authenticate(? string $userName, ? string $userPassword) : HttpResultContainer {
-        $account = $this->_repository->find($userName);
+        $account = $this->_repository->getByName($userName);
         if ($account->getId()){
             $hash = $account->getPasswordHash();
             if (password_verify($userPassword, $hash)){
