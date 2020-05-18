@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
+use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Responders\AccountPasswordChangeResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
@@ -21,17 +21,17 @@ class AccountPasswordChangeAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_PASSWORD_CHANGE';
 
-    private AccountRepository $_repository;
+    private AccountManager $_manager;
     private AccountPasswordChangeResponder $_responder;
 
     /**
      * AccountPasswordChangeAction constructor.
-     * @param AccountRepository $repository
+     * @param AccountManager $manager
      * @param AccountPasswordChangeResponder $responder
      */
-    public function __construct(AccountRepository $repository, AccountPasswordChangeResponder $responder)
+    public function __construct(AccountManager $manager, AccountPasswordChangeResponder $responder)
     {
-        $this->_repository = $repository;
+        $this->_manager = $manager;
         $this->_responder = $responder;
     }
 
@@ -66,7 +66,7 @@ class AccountPasswordChangeAction implements RequestHandlerInterface
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)
                 || $this->verify($request, (int)$putData['accountId']))
             {
-                $result = $this->_repository->changePassword($putData);
+                $result = $this->_manager->changePassword($putData);
                 $response = $this->_responder->respond($request, $result);
                 return $response;
             }

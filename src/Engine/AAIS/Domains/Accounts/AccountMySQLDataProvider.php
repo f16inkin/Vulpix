@@ -13,15 +13,15 @@ use Vulpix\Engine\Database\Connectors\IConnector;
  * Так как Storage реализует интерфейс, я могу легко подменять его на другие: PostGRE, MSSQL и другие
  * реализации хранилищь не заботясь о логике валидации и тд. Просто чистые запросы.
  *
- * Class AccountMySQLStorage
+ * Class AccountMySQLDataProvider
  * @package Vulpix\Engine\AAIS\Domains\Accounts
  */
-class AccountMySQLStorage implements IAccountStorage
+class AccountMySQLDataProvider implements IAccountDataProvider
 {
     private $_connection;
 
     /**
-     * AccountMySQLStorage constructor.
+     * AccountMySQLDataProvider constructor.
      * @param IConnector $connector
      */
     public function __construct(IConnector $connector)
@@ -29,6 +29,12 @@ class AccountMySQLStorage implements IAccountStorage
         $this->_connection = $connector::getConnection();
     }
 
+    /**
+     * Получить учетную записб по ее id.
+     *
+     * @param int $id
+     * @return Account
+     */
     public function getById(int $id) : Account
     {
         $query = ("SELECT `id` AS `userId`, `user_name` AS `userName`, `password_hash` AS `passwordHash` FROM `user_accounts` WHERE `id` = :id");
@@ -105,6 +111,12 @@ class AccountMySQLStorage implements IAccountStorage
         ]);
     }
 
+    /**
+     * Обновить хэш пароля в БД.
+     *
+     * @param string $password
+     * @param int $accountId
+     */
     public function updatePassword(string $password, int $accountId): void
     {
         $query = ("UPDATE `user_accounts` SET `password_hash` = :password WHERE `id` = :id");
@@ -137,9 +149,8 @@ class AccountMySQLStorage implements IAccountStorage
      *
      * @param int $id
      */
-    public function delete(array $accountIDs): void
+    public function delete(string $accountIDs): void
     {
-        $accountIDs = implode(', ', $accountIDs);
         $query = ("DELETE FROM `user_accounts` WHERE `id` IN ($accountIDs)");
         $result = $this->_connection->prepare($query);
         $result->execute();

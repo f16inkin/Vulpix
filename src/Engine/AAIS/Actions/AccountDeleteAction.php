@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
+use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Responders\AccountDeleteResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
@@ -21,17 +21,17 @@ class AccountDeleteAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_DELETE';
 
-    private AccountRepository $_repository;
+    private AccountManager $_manager;
     private AccountDeleteResponder $_responder;
 
     /**
      * AccountDeleteAction constructor.
-     * @param AccountRepository $repository
+     * @param AccountManager $manager
      * @param AccountDeleteResponder $responder
      */
-    public function __construct(AccountRepository $repository, AccountDeleteResponder $responder)
+    public function __construct(AccountManager $manager, AccountDeleteResponder $responder)
     {
-        $this->_repository = $repository;
+        $this->_manager = $manager;
         $this->_responder = $responder;
     }
 
@@ -46,7 +46,7 @@ class AccountDeleteAction implements RequestHandlerInterface
             if(PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
                 $deleteData = json_decode(file_get_contents("php://input"),true) ?: null;
                 $accountIDs = $deleteData['accountIDs'];
-                $result = $this->_repository->delete($accountIDs);
+                $result = $this->_manager->delete($accountIDs);
                 $response = $this->_responder->respond($request, $result);
                 return $response;
             }

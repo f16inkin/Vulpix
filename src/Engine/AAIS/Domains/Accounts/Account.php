@@ -16,6 +16,12 @@ class Account implements \JsonSerializable
     private string $_userName;
     private string $_passwordHash;
 
+    /**
+     * Account constructor.
+     * @param int $id
+     * @param string $userName
+     * @param string $passwordHash
+     */
     public function __construct(int $id = 0, string $userName = '', string $passwordHash = '')
     {
         $this->_id = $id;

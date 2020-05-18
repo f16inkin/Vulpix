@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
+use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Responders\AccountCreateResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
@@ -21,17 +21,17 @@ class AccountCreateAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_CREATE';
 
-    private AccountRepository $_repository;
+    private AccountManager $_manager;
     private AccountCreateResponder $_responder;
 
     /**
      * AccountCreateAction constructor.
-     * @param AccountRepository $repository
+     * @param AccountManager $manager
      * @param AccountCreateResponder $responder
      */
-    public function __construct(AccountRepository $repository, AccountCreateResponder $responder)
+    public function __construct(AccountManager $manager, AccountCreateResponder $responder)
     {
-        $this->_repository = $repository;
+        $this->_manager = $manager;
         $this->_responder = $responder;
     }
 
@@ -45,8 +45,8 @@ class AccountCreateAction implements RequestHandlerInterface
         try{
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
                 $postData = json_decode(file_get_contents("php://input"),true) ?: null;
-                $result = $this->_repository->create($postData);
-                $account = $this->_repository->getById($result->getBody());
+                $result = $this->_manager->create($postData);
+                $account = $this->_manager->getById($result->getBody());
                 $response = $this->_responder->respond($request, $result->setBody($account));
                 return $response;
             }

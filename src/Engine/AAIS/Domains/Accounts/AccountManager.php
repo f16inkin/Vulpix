@@ -10,16 +10,16 @@ use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
 /**
  * Repository.
  *
- * Class AccountRepository
+ * Class AccountManager
  * @package Vulpix\Engine\AAIS\Domains\Accounts
  */
-class AccountRepository
+class AccountManager
 {
-    private IAccountStorage $_storage;
+    private IAccountDataProvider $_dataProvider;
 
-    public function __construct(IAccountStorage $storage)
+    public function __construct(IAccountDataProvider $dataProvider)
     {
-        $this->_storage = $storage;
+        $this->_dataProvider = $dataProvider;
     }
 
     /**
@@ -31,7 +31,7 @@ class AccountRepository
     public function getById(?int $id) : Account
     {
         $id = Sanitizer::transformToInt($id);
-        return $this->_storage->getById($id);
+        return $this->_dataProvider->getById($id);
     }
 
     /**
@@ -43,7 +43,7 @@ class AccountRepository
     public function getByName(?string $username) : Account
     {
         $username = Sanitizer::sanitize($username);
-        return $this->_storage->getByName($username);
+        return $this->_dataProvider->getByName($username);
     }
 
     /**
@@ -57,7 +57,7 @@ class AccountRepository
          * @var int $partlyDetails['start']
          * @var int $partlyDetails['offset]
          */
-        $collection = $this->_storage->getPartly($partlyDetails['start'], $partlyDetails['offset']);
+        $collection = $this->_dataProvider->getPartly($partlyDetails['start'], $partlyDetails['offset']);
         if ($collection->count() > 0){
             return new HttpResultContainer($collection, 200);
         }
@@ -75,7 +75,7 @@ class AccountRepository
         $id = Sanitizer::transformToInt($accountDetails['accountId']);
         $name = Sanitizer::sanitize($accountDetails['accountName']);
         $account = new Account($id, $name);
-        $this->_storage->updateAccount($account);
+        $this->_dataProvider->updateAccount($account);
         return new HttpResultContainer($id, 200);
     }
 
@@ -94,7 +94,7 @@ class AccountRepository
         if ($account->getId()){
             if (password_verify($oldPassword, $account->getPasswordHash())){
                 $newPassword = password_hash($newPassword, PASSWORD_ARGON2I);
-                $this->_storage->updatePassword($newPassword, $accountId);
+                $this->_dataProvider->updatePassword($newPassword, $accountId);
                 return new HttpResultContainer('Пароль обновлен', 200);
             }
         }
@@ -112,7 +112,7 @@ class AccountRepository
         $accountId = Sanitizer::transformToInt($passwordDetails['accountId']);
         $password = Sanitizer::sanitize($passwordDetails['newPassword']);
         $newPassword = password_hash($password, PASSWORD_ARGON2I);
-        $this->_storage->updatePassword($newPassword, $accountId);
+        $this->_dataProvider->updatePassword($newPassword, $accountId);
         return new HttpResultContainer('Старый пароль сброшен. Установлен новый пароль', 200);
     }
 
@@ -128,7 +128,7 @@ class AccountRepository
         $account = $this->getByName($accountDetails['userName']);
         if (!$account->getId()){
             $account = new Account(0, $accountDetails['userName'], password_hash($accountDetails['userPassword'],PASSWORD_ARGON2I));
-            return new HttpResultContainer($this->_storage->insert($account), 201);
+            return new HttpResultContainer($this->_dataProvider->insert($account), 201);
         }
         return new HttpResultContainer($account->getId(), 409);
     }
@@ -141,7 +141,8 @@ class AccountRepository
     public function delete(?array $accountIDs) : HttpResultContainer
     {
         $accountIDs = Sanitizer::transformToInt($accountIDs);
-        $this->_storage->delete($accountIDs);
+        $accountIDs = implode(', ', $accountIDs);
+        $this->_dataProvider->delete($accountIDs);
         return new HttpResultContainer;
     }
 }

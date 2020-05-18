@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
+use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Responders\AccountsGetResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
@@ -21,17 +21,17 @@ class AccountsGetAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'AAIS_ACCOUNTS_GET';
 
-    private AccountRepository $_repository;
+    private AccountManager $_manager;
     private AccountsGetResponder $_responder;
 
     /**
      * AccountsGetAction constructor.
-     * @param AccountRepository $repository
+     * @param AccountManager $manager
      * @param AccountsGetResponder $responder
      */
-    public function __construct(AccountRepository $repository, AccountsGetResponder $responder)
+    public function __construct(AccountManager $manager, AccountsGetResponder $responder)
     {
-        $this->_repository = $repository;
+        $this->_manager = $manager;
         $this->_responder = $responder;
     }
 
@@ -45,7 +45,7 @@ class AccountsGetAction implements RequestHandlerInterface
         try{
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
                 $getData = json_decode(file_get_contents("php://input"),true) ?: null;
-                $result = $this->_repository->getPartly($getData);
+                $result = $this->_manager->getPartly($getData);
                 $response = $this->_responder->respond($request, $result);
                 return $response;
             }

@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
+use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Responders\AccountPasswordResetResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
@@ -21,17 +21,17 @@ class AccountPasswordResetAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_PASSWORD_RESET';
 
-    private AccountRepository $_repository;
+    private AccountManager $_manager;
     private AccountPasswordResetResponder $_responder;
 
     /**
      * AccountPasswordResetAction constructor.
-     * @param AccountRepository $repository
+     * @param AccountManager $manager
      * @param AccountPasswordResetResponder $responder
      */
-    public function __construct(AccountRepository $repository, AccountPasswordResetResponder $responder)
+    public function __construct(AccountManager $manager, AccountPasswordResetResponder $responder)
     {
-        $this->_repository = $repository;
+        $this->_manager = $manager;
         $this->_responder = $responder;
     }
 
@@ -45,7 +45,7 @@ class AccountPasswordResetAction implements RequestHandlerInterface
         try{
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
                 $putData = json_decode(file_get_contents("php://input"),true);
-                $result = $this->_repository->resetPassword($putData);
+                $result = $this->_manager->resetPassword($putData);
                 $response = $this->_responder->respond($request, $result);
                 return $response;
             }
