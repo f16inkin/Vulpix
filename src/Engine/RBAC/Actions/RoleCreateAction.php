@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\RBAC\Domains\RoleManager;
+use Vulpix\Engine\RBAC\Domains\Roles\RoleManager;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\RoleCreateResponder;
@@ -51,7 +51,7 @@ class RoleCreateAction implements RequestHandlerInterface
                 /**
                  * Только что созданная роль и не должна содержать привелегий.
                  */
-                $role = $this->_manager->get($result->getBody());
+                $role = $this->_manager->getById($result->getBody());
                 $response = $this->_responder->respond($request, $result->setBody($role));
                 return $response;
             }

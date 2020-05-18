@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\RBAC\Domains\RoleManager;
+use Vulpix\Engine\RBAC\Domains\Roles\RoleManager;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\RoleGetAllResponder;
@@ -16,10 +16,10 @@ use Vulpix\Engine\RBAC\Responders\RoleGetAllResponder;
 /**
  * Получить все роли системы.
  *
- * Class RoleGetAllAction
+ * Class RolesGetAction
  * @package Vulpix\Engine\RBAC\Actions
  */
-class RoleGetAllAction implements RequestHandlerInterface
+class RolesGetAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'RBAC_ROLES_GET_ALL';
 
@@ -27,7 +27,7 @@ class RoleGetAllAction implements RequestHandlerInterface
     private $_responder;
 
     /**
-     * RoleGetAllAction constructor.
+     * RolesGetAction constructor.
      * @param RoleManager $manager
      * @param RoleGetAllResponder $responder
      */
@@ -46,7 +46,8 @@ class RoleGetAllAction implements RequestHandlerInterface
     {
         try{
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $result = $this->_manager->getAll();
+                $getData = json_decode(file_get_contents("php://input"),true) ?: null;
+                $result = $this->_manager->getPartly($getData);
                 $response = $this->_responder->respond($request, $result);
                 return $response;
             }

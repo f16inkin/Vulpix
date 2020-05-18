@@ -1,4 +1,5 @@
 <?php
+/** @noinspection PhpParamsInspection */
 /**
  * Examples of the routes
  *
@@ -31,7 +32,7 @@ $app->delete('permissions.delete', '/api/v1/permissions', \Vulpix\Engine\RBAC\Ac
 
 #RBAC - Roles
 $app->get('role.get', '/api/v1/roles/{id}', \Vulpix\Engine\RBAC\Actions\RoleGetAction::class)->tokens(['id' => '\d+']);
-$app->get('roles.get', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RoleGetAllAction::class);
+$app->get('roles.get', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RolesGetAction::class);
 $app->post('role.create', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RoleCreateAction::class);
 $app->put('role.edit', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RoleEditAction::class);
 $app->delete('roles.delete', '/api/v1/roles', \Vulpix\Engine\RBAC\Actions\RoleDeleteAction::class);
