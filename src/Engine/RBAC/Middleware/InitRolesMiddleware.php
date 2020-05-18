@@ -9,6 +9,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\Database\Connectors\IConnector;
+use Vulpix\Engine\Database\Connectors\MySQLConnector;
+use Vulpix\Engine\RBAC\Domains\PermissionManager;
+use Vulpix\Engine\RBAC\Domains\Roles\Role;
 use Vulpix\Engine\RBAC\Domains\Roles\RoleManager;
 
 /**
@@ -18,17 +21,19 @@ use Vulpix\Engine\RBAC\Domains\Roles\RoleManager;
 class InitRolesMiddleware implements MiddlewareInterface
 {
     private $_dbConnector;
-    private $_manager;
+    private $_roleManager;
+    private $_permissionManager;
 
     /**
      * InitRolesMiddleware constructor.
      * @param IConnector $dbConnector
      * @param RoleManager $manager
      */
-    public function __construct(IConnector $dbConnector, RoleManager $manager)
+    public function __construct(IConnector $dbConnector, RoleManager $roleManager, PermissionManager $permissionManager)
     {
         $this->_dbConnector = $dbConnector;
-        $this->_manager = $manager;
+        $this->_roleManager = $roleManager;
+        $this->_permissionManager = $permissionManager;
     }
 
     /**
@@ -41,8 +46,15 @@ class InitRolesMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $userId = $request->getAttribute('User')['userId'];
-        $roles = $this->_manager->initRoles($userId);
-        $request = $request->withAttribute('Roles', $roles);
+        $collection = $this->_roleManager->getByUserId($userId);
+        /**
+         * Проинициализирую роли привелегиями
+         */
+        foreach ($collection as $key => $role){
+            $permissions = $this->_permissionManager->initPermissions($role->getId());
+            $role->setPermissions($permissions);
+        }
+        $request = $request->withAttribute('Roles', $collection);
         return $response = $handler->handle($request);
     }
 }
