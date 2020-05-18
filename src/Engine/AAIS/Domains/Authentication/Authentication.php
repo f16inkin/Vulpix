@@ -4,11 +4,10 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Domains\Authentication;
 
-use Vulpix\Engine\AAIS\Domains\Accounts\AccountRepository;
+use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Service\JWTCreator;
 use Vulpix\Engine\AAIS\Service\RTCreator;
 use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
-use Vulpix\Engine\Database\Connectors\IConnector;
 
 /**
  * Аутентификация - процесс проверки учетных данных пользователя.
@@ -18,17 +17,17 @@ use Vulpix\Engine\Database\Connectors\IConnector;
  */
 class Authentication
 {
-    private AccountRepository $_repository;
+    private AccountManager $_repository;
     private RTCreator $_rtCreator;
     private HttpResultContainer $_resultContainer;
 
     /**
      * Authentication constructor.
-     * @param AccountRepository $repository
+     * @param AccountManager $repository
      * @param RTCreator $rtCreator
      * @param HttpResultContainer $resultContainer
      */
-    public function __construct(AccountRepository $repository, RTCreator $rtCreator, HttpResultContainer $resultContainer)
+    public function __construct(AccountManager $repository, RTCreator $rtCreator, HttpResultContainer $resultContainer)
     {
         $this->_repository = $repository;
         $this->_rtCreator = $rtCreator;
