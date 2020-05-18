@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Vulpix\Engine\RBAC\Domains;
+namespace Vulpix\Engine\RBAC\Domains\Permissions;
 
 use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 use Vulpix\Engine\Core\Utility\Sanitizer\Sanitizer;
@@ -10,13 +10,7 @@ use Vulpix\Engine\Database\Connectors\IConnector;
 use Vulpix\Engine\RBAC\DataStructures\Collections\PermissionsCollection;
 use Vulpix\Engine\RBAC\DataStructures\Entity\Permission;
 
-/**
- * Класс для управления привелегиями: Добавить, Получить(разница), Удалить.
- *
- * Class PermissionManager
- * @package Vulpix\Engine\RBAC\Domains
- */
-class PermissionManager1
+class PermissionManager
 {
     public const LISTED = 'listed';
     public const GROUPED = 'grouped';
@@ -312,5 +306,4 @@ class PermissionManager1
             return $this->getGrouped($roleId);
         }
     }
-
 }
