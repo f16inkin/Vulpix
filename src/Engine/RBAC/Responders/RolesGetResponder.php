@@ -10,10 +10,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
 
 /**
- * Class RoleGetAllResponder
+ * Class RolesGetResponder
  * @package Vulpix\Engine\RBAC\Responders
  */
-class RoleGetAllResponder
+class RolesGetResponder
 {
     /**
      * @param ServerRequestInterface $request

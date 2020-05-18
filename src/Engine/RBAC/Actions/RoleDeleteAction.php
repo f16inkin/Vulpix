@@ -8,7 +8,7 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\RBAC\Domains\RoleManager;
+use Vulpix\Engine\RBAC\Domains\Roles\RoleManager;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\RoleDeleteResponder;
@@ -23,8 +23,8 @@ class RoleDeleteAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'RBAC_ROLE_DELETE';
 
-    private $_manager;
-    private $_responder;
+    private RoleManager $_manager;
+    private RoleDeleteResponder $_responder;
 
     /**
      * RoleDeleteAction constructor.

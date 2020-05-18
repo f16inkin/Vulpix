@@ -9,8 +9,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
-use Vulpix\Engine\RBAC\Domains\PermissionManager;
-use Vulpix\Engine\RBAC\Domains\RoleManager;
+use Vulpix\Engine\RBAC\Domains\Permissions\PermissionManager;
+use Vulpix\Engine\RBAC\Domains\Roles\RoleManager;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\RoleGetResponder;
@@ -25,9 +25,9 @@ class RoleGetAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'RBAC_ROLE_GET';
 
-    private $_manager;
-    private $_permissionManager;
-    private $_responder;
+    private RoleManager $_roleManager;
+    private PermissionManager $_permissionManager;
+    private RoleGetResponder $_responder;
 
     /**
      * RoleGetAction constructor.
@@ -37,7 +37,7 @@ class RoleGetAction implements RequestHandlerInterface
      */
     public function __construct(RoleManager $manager, PermissionManager $permissionManager, RoleGetResponder $responder)
     {
-        $this->_manager = $manager;
+        $this->_roleManager = $manager;
         $this->_permissionManager = $permissionManager;
         $this->_responder = $responder;
     }
@@ -52,9 +52,13 @@ class RoleGetAction implements RequestHandlerInterface
         try{
             if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
                 $roleId = (int)$request->getAttribute('id') ?: null;
-                $role = $this->_manager->get($roleId);
-                $permissions = $this->_permissionManager->initPermissions($role->getId(), $this->_permissionManager::GROUPED);
-                $response = $this->_responder->respond($request, new HttpResultContainer($role->setPermissions($permissions), 200));
+                $role = $this->_roleManager->getById($roleId);
+                if($roleId = $role->getId()){
+                    $permissions = $this->_permissionManager->initPermissions($roleId, $this->_permissionManager::GROUPED);
+                    $response = $this->_responder->respond($request, new HttpResultContainer($role->setPermissions($permissions), 200));
+                }else{
+                    $response = $this->_responder->respond($request, new HttpResultContainer($role, 404));
+                }
                 return $response;
             }
             return new JsonResponse('Access denied. Вам запрещено просматривать роли.', 403);

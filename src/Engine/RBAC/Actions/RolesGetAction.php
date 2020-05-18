@@ -11,7 +11,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\RBAC\Domains\Roles\RoleManager;
 use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
-use Vulpix\Engine\RBAC\Responders\RoleGetAllResponder;
+use Vulpix\Engine\RBAC\Responders\RolesGetResponder;
 
 /**
  * Получить все роли системы.
@@ -23,15 +23,15 @@ class RolesGetAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'RBAC_ROLES_GET_ALL';
 
-    private $_manager;
-    private $_responder;
+    private RoleManager $_manager;
+    private RolesGetResponder $_responder;
 
     /**
      * RolesGetAction constructor.
      * @param RoleManager $manager
-     * @param RoleGetAllResponder $responder
+     * @param RolesGetResponder $responder
      */
-    public function __construct(RoleManager $manager, RoleGetAllResponder $responder)
+    public function __construct(RoleManager $manager, RolesGetResponder $responder)
     {
         $this->_manager = $manager;
         $this->_responder = $responder;

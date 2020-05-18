@@ -23,8 +23,8 @@ class RoleCreateAction implements RequestHandlerInterface
 {
     private const ACCESS_PERMISSION = 'RBAC_ROLE_CREATE';
 
-    private $_manager;
-    private $_responder;
+    private RoleManager $_manager;
+    private RoleCreateResponder $_responder;
 
     /**
      * RoleCreateAction constructor.

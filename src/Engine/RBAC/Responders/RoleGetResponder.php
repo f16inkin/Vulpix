@@ -22,7 +22,7 @@ class RoleGetResponder
      */
     public function respond(ServerRequestInterface $request, HttpResultContainer $payload): Response
     {
-        if ($payload->getBody()->getId() === 0 ){
+        if (!$payload->getBody()->getId()){
             return new JsonResponse('Роль не найдена на сервере.', 404);
         }
         return new JsonResponse($payload->getBody(), $payload->getStatus());
