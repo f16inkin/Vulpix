@@ -6,15 +6,29 @@ namespace Vulpix\Engine\RBAC\Domains\Roles;
 
 use Vulpix\Engine\Database\Connectors\IConnector;
 
+/**
+ * Реализация интерфейса DataProvider, для работы с MySQL.
+ *
+ * Class RolesMySQLDataProvider
+ * @package Vulpix\Engine\RBAC\Domains\Roles
+ */
 class RolesMySQLDataProvider implements IRolesDataProvider
 {
     private $_connection;
 
+    /**
+     * RolesMySQLDataProvider constructor.
+     * @param IConnector $connector
+     */
     public function __construct(IConnector $connector)
     {
         $this->_connection = $connector::getConnection();
     }
 
+    /**
+     * @param int $id
+     * @return Role
+     */
     public function getById(int $id): Role
     {
         $query = ("SELECT `id` AS `roleId`, `role_name` AS `roleName`, `role_description` AS `roleDescription` 
@@ -30,6 +44,10 @@ class RolesMySQLDataProvider implements IRolesDataProvider
         return new Role();
     }
 
+    /**
+     * @param string $name
+     * @return Role
+     */
     public function getByName(string $name): Role
     {
         $query = ("SELECT `id` AS `roleId`, `role_name` AS 'roleName', `role_description` AS `roleDescription` 
@@ -45,6 +63,10 @@ class RolesMySQLDataProvider implements IRolesDataProvider
         return new Role();
     }
 
+    /**
+     * @param int $userId
+     * @return RolesCollection
+     */
     public function getByUserId(int $userId): RolesCollection
     {
         $query = ("SELECT `roles`.`id` AS `roleId`, `role_name` AS `roleName`, `role_description` AS `roleDescription`
@@ -68,6 +90,11 @@ class RolesMySQLDataProvider implements IRolesDataProvider
         return $collection;
     }
 
+    /**
+     * @param int $start
+     * @param int $offset
+     * @return RolesCollection
+     */
     public function getPartly(int $start, int $offset): RolesCollection
     {
         $query = ("SELECT `id` AS `roleId`, `role_name` AS `roleName`, `role_description` AS `roleDescription`
@@ -86,6 +113,10 @@ class RolesMySQLDataProvider implements IRolesDataProvider
         return $collection;
     }
 
+    /**
+     * @param Role $role
+     * @return int
+     */
     public function insert(Role $role): int
     {
         $query = ("INSERT INTO `roles` (role_name, role_description) VALUES (:roleName, :roleDescription)");
@@ -97,13 +128,28 @@ class RolesMySQLDataProvider implements IRolesDataProvider
         return (int)$this->_connection->lastInsertId();
     }
 
+    /**
+     * @param Role $role
+     */
     public function update(Role $role): void
     {
-
+        $query = ("UPDATE `roles` SET `role_name` = :roleName, `role_description` = :roleDescription
+                WHERE `id` = :roleId");
+        $result = $this->_connection->prepare($query);
+        $result->execute([
+            'roleId' => $role->getId(),
+            'roleName' => $role->getName(),
+            'roleDescription' => $role->getDescription()
+        ]);
     }
 
-    public function delete(array $roleIDs): void
+    /**
+     * @param string $roleIDs
+     */
+    public function delete(string $roleIDs): void
     {
-        // TODO: Implement delete() method.
+        $query = ("DELETE FROM `roles` WHERE `id` IN ($roleIDs)");
+        $result = $this->_connection->prepare($query);
+        $result->execute();
     }
 }

@@ -90,7 +90,7 @@ class Role implements \JsonSerializable
 
     /**
      * @param $permissions
-     * @return \Vulpix\Engine\RBAC\DataStructures\Entity\Role
+     * @return Role
      */
     public function setPermissions($permissions) : Role
     {
