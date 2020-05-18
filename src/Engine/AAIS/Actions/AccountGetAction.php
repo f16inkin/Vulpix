@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Actions;
 
-use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -12,7 +11,6 @@ use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Responders\AccountGetResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
 use Vulpix\Engine\Core\DataStructures\Entity\HttpResultContainer;
-use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 
 /**
  * Class AccountGetAction
@@ -20,8 +18,6 @@ use Vulpix\Engine\RBAC\Service\PermissionVerificator;
  */
 class AccountGetAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_GET';
-
     private AccountManager $_manager;
     private AccountGetResponder $_responder;
 
@@ -44,13 +40,10 @@ class AccountGetAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $accountId = (int)$request->getAttribute('id') ?: null;
-                $account = $this->_manager->getById($accountId);
-                $response = $this->_responder->respond($request, new HttpResultContainer($account, 200));
-                return $response;
-            }
-            return new JsonResponse('Access denied. Вам запрещено просматривать учетные записи.', 403);
+            $accountId = (int)$request->getAttribute('id') ?: null;
+            $account = $this->_manager->getById($accountId);
+            $response = $this->_responder->respond($request, new HttpResultContainer($account, 200));
+            return $response;
         }catch (\Exception $e){
             return (new AAISExceptionsHandler())->handle($e);
         }

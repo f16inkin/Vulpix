@@ -4,14 +4,12 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Actions;
 
-use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Responders\AccountEditResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
-use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 
 /**
  * Class AccountEditAction
@@ -19,8 +17,6 @@ use Vulpix\Engine\RBAC\Service\PermissionVerificator;
  */
 class AccountEditAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_EDIT';
-
     private AccountManager $_manager;
     private AccountEditResponder $_responder;
 
@@ -43,14 +39,11 @@ class AccountEditAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $putData = json_decode(file_get_contents("php://input"),true);
-                $result = $this->_manager->editAccount($putData);
-                $account = $this->_manager->getById($result->getBody());
-                $response = $this->_responder->respond($request, $result->setBody($account));
-                return $response;
-            }
-            return new JsonResponse('Access denied. Вам запрещено редактировать учетную запись.', 403);
+            $putData = json_decode(file_get_contents("php://input"),true);
+            $result = $this->_manager->editAccount($putData);
+            $account = $this->_manager->getById($result->getBody());
+            $response = $this->_responder->respond($request, $result->setBody($account));
+            return $response;
         }catch (\Exception $e){
             return (new AAISExceptionsHandler())->handle($e);
         }

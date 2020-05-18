@@ -1,17 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Actions;
 
-use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Responders\AccountsGetResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
-use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 
 /**
  * Class AccountsGetAction
@@ -19,8 +17,6 @@ use Vulpix\Engine\RBAC\Service\PermissionVerificator;
  */
 class AccountsGetAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'AAIS_ACCOUNTS_GET';
-
     private AccountManager $_manager;
     private AccountsGetResponder $_responder;
 
@@ -43,13 +39,10 @@ class AccountsGetAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $getData = json_decode(file_get_contents("php://input"),true) ?: null;
-                $result = $this->_manager->getPartly($getData);
-                $response = $this->_responder->respond($request, $result);
-                return $response;
-            }
-            return new JsonResponse('Access denied. Вам запрещено просматривать список учетных записей пользователей.', 403);
+            $getData = json_decode(file_get_contents("php://input"),true) ?: null;
+            $result = $this->_manager->getPartly($getData);
+            $response = $this->_responder->respond($request, $result);
+            return $response;
         }catch (\Exception $e){
             return (new AAISExceptionsHandler())->handle($e);
         }

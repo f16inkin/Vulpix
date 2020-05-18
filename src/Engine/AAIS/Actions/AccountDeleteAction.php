@@ -4,14 +4,12 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\AAIS\Actions;
 
-use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\AAIS\Domains\Accounts\AccountManager;
 use Vulpix\Engine\AAIS\Responders\AccountDeleteResponder;
 use Vulpix\Engine\AAIS\Service\AAISExceptionsHandler;
-use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 
 /**
  * Class AccountDeleteAction
@@ -19,8 +17,6 @@ use Vulpix\Engine\RBAC\Service\PermissionVerificator;
  */
 class AccountDeleteAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'AAIS_ACCOUNT_DELETE';
-
     private AccountManager $_manager;
     private AccountDeleteResponder $_responder;
 
@@ -43,14 +39,11 @@ class AccountDeleteAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            if(PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $deleteData = json_decode(file_get_contents("php://input"),true) ?: null;
-                $accountIDs = $deleteData['accountIDs'];
-                $result = $this->_manager->delete($accountIDs);
-                $response = $this->_responder->respond($request, $result);
-                return $response;
-            }
-            return new JsonResponse('Access denied. Вам запрещено удалять аккаунты пользователей.', 403);
+            $deleteData = json_decode(file_get_contents("php://input"),true) ?: null;
+            $accountIDs = $deleteData['accountIDs'];
+            $result = $this->_manager->delete($accountIDs);
+            $response = $this->_responder->respond($request, $result);
+            return $response;
         }catch (\Exception $e){
             return (new AAISExceptionsHandler())->handle($e);
         }

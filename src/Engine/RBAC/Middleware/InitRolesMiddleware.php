@@ -13,6 +13,11 @@ use Vulpix\Engine\RBAC\Domains\Permissions\PermissionManager;
 use Vulpix\Engine\RBAC\Domains\Roles\RoleManager;
 
 /**
+ * На текущий момент Legacy class. ВОзможно в будующем понадобится для разделения логики на две части:
+ * 1) Инициализация ролей
+ * 2) Какие-то действия
+ * 3) Проверка прав доступа
+ *
  * Class InitRolesMiddleware
  * @package Vulpix\Engine\RBAC\Middleware
  */

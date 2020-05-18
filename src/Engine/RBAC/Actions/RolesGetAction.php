@@ -4,12 +4,10 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
-use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Vulpix\Engine\RBAC\Domains\Roles\RoleManager;
-use Vulpix\Engine\RBAC\Service\PermissionVerificator;
 use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\RolesGetResponder;
 
@@ -21,8 +19,6 @@ use Vulpix\Engine\RBAC\Responders\RolesGetResponder;
  */
 class RolesGetAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'RBAC_ROLES_GET_ALL';
-
     private RoleManager $_manager;
     private RolesGetResponder $_responder;
 
@@ -45,13 +41,10 @@ class RolesGetAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $getData = json_decode(file_get_contents("php://input"),true) ?: null;
-                $result = $this->_manager->getPartly($getData);
-                $response = $this->_responder->respond($request, $result);
-                return $response;
-            }
-            return new JsonResponse('Access denied. Вам запрещено просматривать роли.', 403);
+            $getData = json_decode(file_get_contents("php://input"),true) ?: null;
+            $result = $this->_manager->getPartly($getData);
+            $response = $this->_responder->respond($request, $result);
+            return $response;
         }catch (\Exception $e){
             return (new RBACExceptionsHandler())->handle($e);
         }
