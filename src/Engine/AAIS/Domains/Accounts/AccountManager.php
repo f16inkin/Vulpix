@@ -97,6 +97,7 @@ class AccountManager
                 $this->_dataProvider->updatePassword($newPassword, $accountId);
                 return new HttpResultContainer('Пароль обновлен', 200);
             }
+            return new HttpResultContainer('Вы ввели не верный пароль', 401);
         }
         return new HttpResultContainer('Данный аккаунт не найден', 404);
     }
