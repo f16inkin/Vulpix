@@ -47,6 +47,8 @@ class Sanitizer
         Assert::notNull($structure);
         if (is_array($structure)){
             foreach ($structure as $key => $value) {
+                Assert::notEmpty($value);
+                Assert::notNull($value);
                 $sanitized[$key] = (int) preg_replace ("/[^0-9]/","", $value);
             }
             return $sanitized;
