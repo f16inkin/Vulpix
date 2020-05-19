@@ -12,7 +12,7 @@ use Vulpix\Engine\Database\Connectors\IConnector;
  */
 class PermissionsMySQLDataProvider implements IPermissionsDataProvider
 {
-    private IConnector $_connection;
+    private $_connection;
 
     /**
      * PermissionsMySQLDataProvider constructor.
