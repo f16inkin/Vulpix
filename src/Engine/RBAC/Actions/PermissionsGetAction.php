@@ -4,12 +4,10 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Actions;
 
-use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Vulpix\Engine\RBAC\Domains\PermissionManager;
-use Vulpix\Engine\RBAC\Service\PermissionVerificator;
+use Vulpix\Engine\RBAC\Domains\Permissions\PermissionManager;
 use Vulpix\Engine\RBAC\Service\RBACExceptionsHandler;
 use Vulpix\Engine\RBAC\Responders\PermissionsGetResponder;
 
@@ -21,13 +19,12 @@ use Vulpix\Engine\RBAC\Responders\PermissionsGetResponder;
  */
 class PermissionsGetAction implements RequestHandlerInterface
 {
-    private const ACCESS_PERMISSION = 'PERMISSIONS_GET_ALL';
-
     private $_manager;
     private $_responder;
 
     /**
-     * PermissionsGetDiffAction constructor.
+     * PermissionsGetAction constructor.
+     * @param PermissionManager $manager
      * @param PermissionsGetResponder $responder
      */
     public function __construct(PermissionManager $manager, PermissionsGetResponder $responder)
@@ -44,12 +41,10 @@ class PermissionsGetAction implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try{
-            if (PermissionVerificator::verify($request->getAttribute('Roles'), self::ACCESS_PERMISSION)){
-                $result = $this->_manager->getAllPermissions();
-                $response = $this->_responder->respond($request, $result);
-                return $response;
-            }
-            return new JsonResponse('Access denied. Вам запрещен просмотр привелегий системы.', 403);
+            $getData = json_decode(file_get_contents("php://input"),true) ?: null;
+            $result = $this->_manager->getPartly($getData);
+            $response = $this->_responder->respond($request, $result);
+            return $response;
         }catch (\Exception $e){
             return (new RBACExceptionsHandler())->handle($e);
         }
