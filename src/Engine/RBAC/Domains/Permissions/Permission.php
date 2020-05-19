@@ -1,14 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare (strict_types = 1);
 
-namespace Vulpix\Engine\RBAC\DataStructures\Entity;
+namespace Vulpix\Engine\RBAC\Domains\Permissions;
 
 /**
- * Сущность. Привелегия.
+ * Entity.
  *
  * Class Permission
- * @package Vulpix\Engine\RBAC\DataStructures\Entity
+ * @package Vulpix\Engine\RBAC\Domains\Permissions
  */
 class Permission implements \JsonSerializable
 {
@@ -16,6 +16,12 @@ class Permission implements \JsonSerializable
     private string $_name;
     private string $_description;
 
+    /**
+     * Permission constructor.
+     * @param int $id
+     * @param string $name
+     * @param string $description
+     */
     public function __construct(int $id, string $name, string $description)
     {
         $this->_id = $id;

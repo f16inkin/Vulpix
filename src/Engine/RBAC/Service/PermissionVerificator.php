@@ -4,7 +4,8 @@ declare(strict_types = 1);
 
 namespace Vulpix\Engine\RBAC\Service;
 
-use Vulpix\Engine\RBAC\DataStructures\Collections\PermissionsCollection;
+
+use Vulpix\Engine\RBAC\Domains\Permissions\PermissionsCollection;
 use Vulpix\Engine\RBAC\Domains\Roles\RolesCollection;
 
 class PermissionVerificator

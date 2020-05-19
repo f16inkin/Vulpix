@@ -1,22 +1,14 @@
 <?php
 
-declare(strict_types = 1);
+declare (strict_types = 1);
 
-namespace Vulpix\Engine\RBAC\DataStructures\Collections;
+namespace Vulpix\Engine\RBAC\Domains\Permissions;
 
 use ArrayIterator;
 use InvalidArgumentException;
 use Traversable;
-use Vulpix\Engine\Core\DataStructures\Collections\ICollection;
-use Vulpix\Engine\RBAC\DataStructures\Entity\Permission;
 
-/**
- * Коллекция. Включает в себя объекты класса Permission.
- *
- * Class PermissionsCollection
- * @package Vulpix\Engine\RBAC\DataStructures\Collections
- */
-class PermissionsCollection implements ICollection, \JsonSerializable
+class PermissionsCollection implements \JsonSerializable
 {
     private array $_permissions = [];
 
@@ -130,4 +122,5 @@ class PermissionsCollection implements ICollection, \JsonSerializable
     {
         return $this->_permissions;
     }
+
 }
