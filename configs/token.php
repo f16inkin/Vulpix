@@ -22,7 +22,7 @@ return [
         'iss' => 'http://example.org',
         'sub' => '', //
         'aud' => 'http://example.com',
-        'exp' => time() + (24 * 60 * 60),
+        'exp' => time() + (24 * 60 * 60 * 365),
         'nbf' => time(),
         'iat' => time(),
         'jti' => '',
