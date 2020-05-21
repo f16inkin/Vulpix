@@ -1,5 +1,5 @@
 {
-  "name": "f16inkin/Vulpix",
+  "name": "f16inkin/vulpix",
   "type": "library",
   "description": "Micro framework for my own ADR rest API Servers",
   "keywords": [
