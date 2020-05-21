@@ -1,4 +1,25 @@
 {
+  "name": "f16inkin/Vulpix",
+  "type": "library",
+  "description": "Micro framework for my own ADR rest API Servers",
+  "keywords": [
+    "psr-4",
+    "psr-7",
+    "psr-11",
+    "psr-15",
+    "rest",
+    "API",
+    "ADR"
+  ],
+  "license": "GPL-3.0-only",
+  "authors": [
+    {
+      "name": "Mikkecy Finking",
+      "email": "f16inkin@gmail.com",
+      "homepage": "https://github.com/f16inkin",
+      "role": "Developer"
+    }
+  ],
   "config": {
       "sort-packages": true
   },
@@ -17,8 +38,7 @@
   },
   "autoload": {
       "psr-4": {
-          "Vulpix\\Engine\\": "src/Engine/",
-          "Vulpix\\Application\\": "src/Application/"
+          "Vulpix\\Engine\\": "src/Engine/"
       }
   },
   "require-dev": {

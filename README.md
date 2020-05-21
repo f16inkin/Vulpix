@@ -1,9 +1,9 @@
 # Vulpix - package
-Foundation, Skeleteon and Micro Framework for my own ADR API Servers
+Foundation, Skeleton and Micro Framework for my own ADR API Servers
 ## Install
 line
-## Requirments
-* **PHP >=7.4**
-* **Webserver, e.g. Apache**
-* **MySQL 8.0**
+## Requirements
+* **PHP:** 7.4 or above
+* **Webserver:** Apache 2.4 or above
+* **DBMS:** MySQL 8.0
 
