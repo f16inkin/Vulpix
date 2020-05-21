@@ -38,6 +38,20 @@ class RBACMiddleware implements MiddlewareInterface
     }
 
     /**
+     * Склеивает stack правила дял модулей фреймворка и custom правила из папки configs приложения если фреймворк
+     * используется как package
+     *
+     * @return array
+     */
+    private function compareRules() : array
+    {
+        $configs = realpath(__DIR__ . '/../../../../configs/permissions.php');
+        $stackRules = include $configs;
+        $customRules = include 'configs/permissions.php';
+        return array_merge($stackRules, $customRules);
+    }
+
+    /**
      * @param ServerRequestInterface $request
      * @return RolesCollection
      */
@@ -59,7 +73,7 @@ class RBACMiddleware implements MiddlewareInterface
      * @return mixed|string
      */
     private function getRules(ServerRequestInterface $request) {
-        $rules = include 'configs/permissions.php';
+        $rules = $this->compareRules();
         $currentRule = $rules[$request->getAttribute('Action')];
         return $currentRule ?? 'FULL_ACCESS';
     }
